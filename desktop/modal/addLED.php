@@ -13,22 +13,10 @@ if (!isConnect('admin')) {
     <div style="text-align: center; margin-top: 20px;">
         <button class="btn btn-success" onclick="addChampLED('#LED_number')">{{Valider Nombre}}</button>
     </div>
-<<<<<<< HEAD
 
     <div id="led_array" style="margin-top: 30px;"></div>
 
     <div style="text-align: center; margin-top: 20px; display:none;" id="btn_valider">
         <button class="btn btn-success" onclick="addLED('#LED_number')">{{Valider}}</button>
     </div>
-=======
-    
-    <div id="led_array" style="margin-top: 30px;"></div>
-
-    <div style="text-align: center; margin-top: 20px;">
-        <button class="btn btn-success" onclick="addLED('#LED_number')">{{Valider}}</button>
-    </div>
-    <div style="text-align: center; margin-top: 20px;">
-        <button class="btn btn-success" onclick="addLED('#LED_number')">{{Valider JSON}}</button>
-    </div>
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
 </div>

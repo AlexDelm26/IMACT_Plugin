@@ -1,20 +1,3 @@
-/* This file is part of Jeedom.
- *
- * Jeedom is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Jeedom is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* Permet la réorganisation des commandes dans l'équipement */
 $("#table_cmd").sortable({
   axis: "y",
   cursor: "move",
@@ -32,7 +15,6 @@ $("#btn_add_LED").on("click", function () {
     .dialog("open");
 });
 
-<<<<<<< HEAD
 // Pop-up du bouton Ajouter Thermostat
 $("#btn_add_THERMOSTAT").on("click", function () {
   $("#md_modal").dialog({ title: "{{Ajouter Thermostat}}" });
@@ -51,22 +33,16 @@ $(document).on('click', '.bt_selectEqLogic', function () {
   });
 });
 
-=======
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
 function addChampLED(selectorNbLed) {
   let nb_led = document.querySelector(selectorNbLed).value;
   if (nb_led <= 0) {
     alert("Saisissez au moins 1 LED");
   } else {
-<<<<<<< HEAD
     document.getElementById('btn_valider').style.display = 'block';
-=======
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
     let container = document.querySelector("#led_array");
     let html = '<table class="table table-bordered">';
     html += "<thead><tr>";
     html += "<th>{{N°}}</th>";
-<<<<<<< HEAD
     html += "<th>{{Equipement}}</th>";
     html += "</tr></thead><tbody>";
     for (let i = 1; i <= nb_led; i++) {
@@ -120,22 +96,6 @@ function addChampLED(selectorNbLed) {
     });
 
 
-=======
-    html += "<th>{{Nom}}</th>";
-    html += "</tr></thead><tbody>";
-    for (let i = 1; i <= nb_led; i++) {
-      html += "<tr>";
-      html += "<td>" + i + "</td>";
-      html +=
-        '<td><input type="text" class="form-control led-name" placeholder="LED ' +
-        i +
-        '"></td>';
-      html += "</tr>";
-    }
-    html += "</tbody></table>";
-    container.innerHTML = html;
-    
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
   }
 }
 
@@ -143,15 +103,10 @@ function addLED() {
   let leds = [];
   let rows = document.querySelectorAll("#led_array tbody tr");
   rows.forEach((row) => {
-<<<<<<< HEAD
     let inputEquipement = row.querySelector(".led-equipment")
     leds.push({
       idEquipement: inputEquipement.getAttribute('data-eqlogic-id')
     });
-=======
-    let name = row.querySelector(".led-name").value;
-    leds.push({ name: name });
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
   });
 
   fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
@@ -165,11 +120,7 @@ function addLED() {
     .then((response) => response.json())
     .then((data) => {
       if (data.state === "ok") {
-<<<<<<< HEAD
         alert(leds.length + " LED(s) créée(s) avec succès test");
-=======
-        alert(leds.length + " LED(s) créée(s) avec succès");
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
         document.querySelector("#md_modal").style.display = "none";
         location.reload();
       } else {

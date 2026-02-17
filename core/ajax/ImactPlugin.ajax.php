@@ -29,7 +29,7 @@ try {
     En V4 : autoriser l'exécution d'une méthode 'action' en GET en indiquant le(s) nom(s) de(s) action(s) dans un tableau en argument
   */
   ajax::init();
-<<<<<<< HEAD
+
   log::add('ImactPlugin', 'debug', '=== AJAX appelé ===');
   log::add('ImactPlugin', 'debug', 'Action: ' . init('action'));
   if (init('action') == 'addLEDS') {
@@ -56,46 +56,7 @@ try {
     $ledCreated = ImactPlugin::createVirtualLEDs($leds);
 
     log::add('ImactPlugin', 'debug', 'LEDs créées: ' . $ledCreated);
-=======
 
-  if (init('action') == 'addLEDS') {
-    $leds = json_decode(init('leds'), true);
-    include_file('core', 'virtual', 'class', 'virtual');
-    $ledCreated = 0;
-
-    foreach ($leds as $led) {
-      $virtual = new virtual();
-      $virtual->setEqType_name('virtual');
-      $virtual->setName($led['name']);
-      $virtual->setLogicalId('led_' . uniqid());
-      $virtual->setObject_id(2); // Objet parent
-      $virtual->setIsEnable(1);
-      $virtual->setIsVisible(1);
-      $virtual->save();
-
-      $cmd = new virtualCmd();
-      $cmd->setName('Etat');
-      $cmd->setEqLogic_id($virtual->getId());
-      $cmd->setType('info');
-      $cmd->setSubType('binary');
-      $cmd->setIsVisible(0);
-      $cmd->setIsHistorized(1);
-      $cmd->save();
-
-      $cmdOn = new virtualCmd();
-      $cmdOn->setName('On');
-      $cmdOn->setEqLogic_id($virtual->getId());
-      $cmdOn->setType('action');
-      $cmdOn->setLogicalId('on');
-      $cmdOn->setSubType('default');
-      //$cmdOn->setConfiguration('updateCmdId', $cmd->getId());
-      $cmdOn->setIsVisible(1);
-      $cmdOn->save();
-
-      $ledCreated++;
-
-    }
->>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
     ajax::success($ledCreated . ' objet(s) créé(s) avec succès');
   }
 
