@@ -22,11 +22,14 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			<div class="cursor logoPrimary" id="btn_add_LED">
 				<i class="fas fa-plus-circle"></i>
 				<br>
+<<<<<<< HEAD
 				<span>{{Ajouter Eclairage}}</span>
 			</div>
 			<div class="cursor logoPrimary" id="btn_add_THERMOSTAT">
 				<i class="fas fa-plus-circle"></i>
 				<br>
+=======
+>>>>>>> 0da36e3baf8fa9b0c5c75851c403a643fb08f0cd
 				<span>{{Ajouter Thermostat}}</span>
 			</div>
 			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
