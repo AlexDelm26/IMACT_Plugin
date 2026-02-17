@@ -1,0 +1,19 @@
+{
+  "pre-install": {},
+  "apt": {},
+  "pip3": {
+    "pyserial": { "reinstall": true },
+    "requests": { "reinstall": true }
+  },
+  "npm": {
+    "plugins/ImactPlugin/ressources/demond": {}
+  },
+  "composer": {
+    "plugins/ImactPlugin": {}
+  },
+  "yarn": {
+    "plugins/ImactPlugin/ressources/demond": {}
+  },
+  "plugin": {},
+  "post-install": {}
+}

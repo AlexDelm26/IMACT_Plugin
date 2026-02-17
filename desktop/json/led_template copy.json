@@ -1,0 +1,34 @@
+{
+  "led": {
+    "name": "LED",
+    "plugin": "virtual",
+    "enable": "1",
+    "visible": "1",
+    "commands": [
+      {
+        "name": "Rafraichir",
+        "type": "action",
+        "subType": "other",
+        "isVisible": "1"
+      },
+      {
+        "name": "ETAT",
+        "type": "info",
+        "subType": "binary",
+        "isVisible": "0"
+      },
+      {
+        "name": "on",
+        "type": "action",
+        "subType": "other",
+        "isVisible": "1"
+      },
+      {
+        "name": "off",
+        "type": "action",
+        "subType": "other",
+        "isVisible": "1"
+      }
+    ]
+  }
+}
