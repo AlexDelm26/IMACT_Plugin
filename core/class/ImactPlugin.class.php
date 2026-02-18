@@ -189,13 +189,6 @@ class ImactPlugin extends eqLogic
       $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#');
       $thermo->save();
 
-      $cron = new cron();
-      $cron->setClass('thermostat');
-      $cron->setFunction('daemon');
-      $cron->setOption(['thermostat_id' => $thermo->getId()]);
-      $cron->setSchedule('* * * * *');
-      $cron->setEnable(1);
-      $cron->save();
     } catch (\Throwable $th) {
       log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
     }
