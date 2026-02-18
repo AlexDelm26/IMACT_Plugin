@@ -37,6 +37,7 @@ function addChampLED(selectorNbLed) {
   let nb_led = document.querySelector(selectorNbLed).value;
   if (nb_led <= 0) {
     alert("Saisissez au moins 1 LED");
+    // document.getElementById('led_number').classList.add()
   } else {
     document.getElementById('btn_valider').style.display = 'block';
     let container = document.querySelector("#led_array");
@@ -133,11 +134,13 @@ function addLED() {
     });
 }
 function addThermostat() {
+  let nb_thermostat = document.querySelector('#thermostat_number').value;
   fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       action: "addTHERMOSTATS",
+      thermostat:nb_thermostat
     }),
   })
     .then((response) => response.json())

@@ -2,12 +2,19 @@
 if (!isConnect('admin')) {
     throw new Exception('{{401 - Accès non autorisé}}');
 }
+
+
 ?>
 
 <div style="padding: 20px;">
-    <div class="form-group">
+    <div class="form-group has-error" id="form_led_number">
         <label>{{Nombre de LED à créer}}</label>
         <input type="number" class="form-control" id="LED_number" placeholder="1" min="1" value="1" />
+    </div>
+    <div class="form-group has-error">
+        <label>Test</label>
+        <input type="text" class="form-control">
+        <span class="help-block">Erreur test</span>
     </div>
 
     <div style="text-align: center; margin-top: 20px;">

@@ -1,4 +1,5 @@
 <?php
+include_file('desktop', 'tonplugin', 'css', 'tonplugin');
 if (!isConnect('admin')) {
 	throw new Exception('{{401 - Accès non autorisé}}');
 }

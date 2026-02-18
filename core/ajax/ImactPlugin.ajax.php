@@ -61,7 +61,8 @@ try {
   }
 
   if (init('action')=='addTHERMOSTATS') {
-    $thermostatCreated = ImactPlugin::createThermostat();
+    $thermostat=json_decode(init('thermostat'));
+    $thermostatCreated = ImactPlugin::createThermostat($thermostat);
 
     ajax::success($thermostatCreated);
   }

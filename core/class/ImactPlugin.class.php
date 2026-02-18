@@ -164,7 +164,7 @@ class ImactPlugin extends eqLogic
     log::add('ImactPlugin', 'debug', 'Commande off créée - infoName: #' . $cmdSourceOff->getId() . '#');
   }
 
-  public static function createThermostat()
+  public static function createThermostat(int $nbThermostat)
   {
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
     try {
@@ -172,22 +172,25 @@ class ImactPlugin extends eqLogic
       if (!class_exists('thermostat')) {
         log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
       }
-      $thermo = new thermostat();
-      $thermo->setName('thermostat test');
-      $thermo->setEqType_name('thermostat');
-      $thermo->setIsEnable(1);
-      $thermo->setIsVisible(1);
-      $thermo->setObject_id(null);
-      $thermo->setConfiguration('order_min', 5);
-      $thermo->setConfiguration('order_max', 28);
-      $thermo->setConfiguration('engine', 'temporal');
-      $thermo->setConfiguration('allow_mode', 'heat');
-      $thermo->setConfiguration('temperature_indoor', '#[Températures][Températeur - Bureau][Température]#');
-      $thermo->setConfiguration('temperature_indoor_min', 0);
-      $thermo->setConfiguration('temperature_indoor_max', 100);
-      $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
-      $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#');
-      $thermo->save();
+      for ($i = 0; $i <$nbThermostat; $i++) {
+
+        $thermo = new thermostat();
+        $thermo->setName('thermostat test');
+        $thermo->setEqType_name('thermostat');
+        $thermo->setIsEnable(1);
+        $thermo->setIsVisible(1);
+        $thermo->setObject_id(null);
+        $thermo->setConfiguration('order_min', 5);
+        $thermo->setConfiguration('order_max', 28);
+        $thermo->setConfiguration('engine', 'temporal');
+        $thermo->setConfiguration('allow_mode', 'heat');
+        $thermo->setConfiguration('temperature_indoor', '#[Températures][Températeur - Bureau][Température]#');
+        $thermo->setConfiguration('temperature_indoor_min', 0);
+        $thermo->setConfiguration('temperature_indoor_max', 100);
+        $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
+        $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#');
+        $thermo->save();
+      }
 
     } catch (\Throwable $th) {
       log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());

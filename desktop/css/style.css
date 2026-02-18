@@ -1,0 +1,8 @@
+.form-group.has-error .form-control {
+    border-color: #a94442 !important;
+}
+
+.form-group.has-error .form-control:focus {
+    border-color: #a94442 !important;
+    box-shadow: 0 0 3px #a94442;
+}
