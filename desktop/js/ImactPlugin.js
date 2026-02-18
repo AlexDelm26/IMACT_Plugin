@@ -132,6 +132,29 @@ function addLED() {
       alert("Erreur lors de la création");
     });
 }
+function addThermostat() {
+  fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "addTHERMOSTATS",
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.state === "ok") {
+        alert(" Thermostats créée(s) avec succès test");
+        document.querySelector("#md_modal").style.display = "none";
+        location.reload();
+      } else {
+        alert(data.result);
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur:", error);
+      alert("Erreur lors de la création");
+    });
+}
 
 /* Fonction permettant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {

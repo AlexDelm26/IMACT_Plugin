@@ -60,6 +60,12 @@ try {
     ajax::success($ledCreated . ' objet(s) créé(s) avec succès');
   }
 
+  if (init('action')=='addTHERMOSTATS') {
+    $thermostatCreated = ImactPlugin::createThermostat();
+
+    ajax::success($thermostatCreated);
+  }
+
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */
 } catch (Exception $e) {

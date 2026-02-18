@@ -11,6 +11,6 @@ if (!isConnect('admin')) {
     </div>
 
     <div style="text-align: center; margin-top: 20px;">
-        <button class="btn btn-success" id="bt_saveThermostat">{{Valider}}</button>
+        <button class="btn btn-success" onclick="addThermostat()" id="bt_saveThermostat">{{Valider}}</button>
     </div>
 </div>

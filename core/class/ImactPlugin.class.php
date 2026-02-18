@@ -163,5 +163,43 @@ class ImactPlugin extends eqLogic
     $cmdOff->save();
     log::add('ImactPlugin', 'debug', 'Commande off créée - infoName: #' . $cmdSourceOff->getId() . '#');
   }
+
+  public static function createThermostat()
+  {
+    log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
+    try {
+      include_file('core', 'thermostat', 'class', 'thermostat');
+      if (!class_exists('thermostat')) {
+        log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
+      }
+      $thermo = new thermostat();
+      $thermo->setName('thermostat test');
+      $thermo->setEqType_name('thermostat');
+      $thermo->setIsEnable(1);
+      $thermo->setIsVisible(1);
+      $thermo->setObject_id(null);
+      $thermo->setConfiguration('order_min', 5);
+      $thermo->setConfiguration('order_max', 28);
+      $thermo->setConfiguration('engine', 'temporal');
+      $thermo->setConfiguration('allow_mode', 'heat');
+      $thermo->setConfiguration('temperature_indoor', '#[Températures][Températeur - Bureau][Température]#');
+      $thermo->setConfiguration('temperature_indoor_min', 0);
+      $thermo->setConfiguration('temperature_indoor_max', 100);
+      $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
+      $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#');
+      $thermo->save();
+
+      $cron = new cron();
+      $cron->setClass('thermostat');
+      $cron->setFunction('daemon');
+      $cron->setOption(['thermostat_id' => $thermo->getId()]);
+      $cron->setSchedule('* * * * *');
+      $cron->setEnable(1);
+      $cron->save();
+    } catch (\Throwable $th) {
+      log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
+    }
+    return 'ajout thermostat';
+  }
 }
 
