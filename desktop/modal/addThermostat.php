@@ -11,6 +11,15 @@ if (!isConnect('admin')) {
     </div>
 
     <div style="text-align: center; margin-top: 20px;">
-        <button class="btn btn-success" onclick="addThermostat()" id="bt_saveThermostat">{{Valider}}</button>
+        <button class="btn btn-success" onclick="addChampThermostat()">{{Valider Nombre}}</button>
+    </div>
+
+    <div id="thermostat_array" style="margin-top: 30px;"></div>
+
+    <div style="text-align: center; margin-top: 20px; display:none;" id="btn_valider">
+        <button class="btn btn-success" onclick="addThermostat()">{{Valider}}</button>
+    </div>
+    <div style="text-align: center; margin-top: 20px;" id="btn_valider">
+        <button class="btn btn-success" onclick="log()">{{Log}}</button>
     </div>
 </div>

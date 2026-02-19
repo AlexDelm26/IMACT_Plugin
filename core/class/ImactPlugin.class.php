@@ -124,7 +124,6 @@ class ImactPlugin extends eqLogic
     if (!$cmdInfo) {
       throw new Exception('cmdInfo est null !');
     }
-
     $cmdSourceOn = $eqLogic->getCmd('action', 'json::{"state":"ON"}');
     $cmdSourceOff = $eqLogic->getCmd('action', 'json::{"state":"OFF"}');
 
@@ -172,30 +171,69 @@ class ImactPlugin extends eqLogic
       if (!class_exists('thermostat')) {
         log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
       }
-      for ($i = 0; $i <$nbThermostat; $i++) {
+      for ($i = 0; $i < $nbThermostat; $i++) {
+
 
         $thermo = new thermostat();
-        $thermo->setName('thermostat test');
+        $thermo->setName('thermostat test 2');
         $thermo->setEqType_name('thermostat');
         $thermo->setIsEnable(1);
         $thermo->setIsVisible(1);
+        /* Fix */
         $thermo->setObject_id(null);
         $thermo->setConfiguration('order_min', 5);
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
+        $thermo->save();
+        /* */
+        // Action
+        $chauffer = $thermo->getCmd('action', 'thermostat');
+        // $thermo->setConfiguration('heating', '#' . $chauffer->getId() . '#');
+        // $thermo->setConfiguration('heating', [
+        //   [
+        //     'cmd' => '#' . $chauffer->getId() . '#',
+        //     'options' => ['slider' => '']
+        //   ]
+        // ]);
+        // $thermo->setConfiguration('stoping', );
+        // $thermo->setConfiguration('orderChange', );
+
         $thermo->setConfiguration('temperature_indoor', '#[Températures][Températeur - Bureau][Température]#');
         $thermo->setConfiguration('temperature_indoor_min', 0);
-        $thermo->setConfiguration('temperature_indoor_max', 100);
-        $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
-        $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#');
+        $thermo->setConfiguration('temperature_indoor_max', 40);
+        $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#'); // A DYNAMISER PLUS TARD
+        $thermo->setConfiguration('customCmd', '#[Radiateur][Radiateur - Fenetre 1][valve.position]#'); // A CHOISIR
+        $thermo->setConfiguration('hideLockCmd', 1);
+        $thermo->setConfiguration('existingMode', [
+          [
+            'isVisible' => 1,
+            'name' => 'Boost',
+            'actions' => [
+              [
+                'cmd' => '#' . $chauffer->getId() . '#',
+                'options' => ['slider' => 23] // à mettre dynamiquement
+              ]
+            ]
+          ]
+        ]);
         $thermo->save();
+        log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
       }
 
     } catch (\Throwable $th) {
       log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
     }
     return 'ajout thermostat';
+  }
+  public static function log()
+  {
+    $eqLogic = eqLogic::byId(453);
+    log::add('ImactPlugin', 'debug', '=== Commandes de ' . $eqLogic->getName() . ' ===');
+    log::add('ImactPlugin', 'debug', $eqLogic->getCmd('action', 'thermostat')->getHumanName());
+    foreach ($eqLogic->getCmd() as $cmd) {
+      // log::add('ImactPlugin', 'debug', 'Nom: ' . $cmd->getName() . ' | LogicalId: ' . $cmd->getLogicalId() . ' | Type: ' . $cmd->getType());
+    }
   }
 }
 

@@ -140,7 +140,7 @@ function addThermostat() {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       action: "addTHERMOSTATS",
-      thermostat:nb_thermostat
+      thermostat: nb_thermostat
     }),
   })
     .then((response) => response.json())
@@ -155,7 +155,139 @@ function addThermostat() {
     })
     .catch((error) => {
       console.error("Erreur:", error);
-      alert("Erreur lors de la création");
+      alert("Erreur lors de la création :".error);
+    });
+}
+
+function addChampThermostat() {
+  let nb_thermostat = document.querySelector('#thermostat_number').value;
+  if (nb_thermostat <= 0) {
+    alert("Saisissez au moins 1 LED");
+    // document.getElementById('led_number').classList.add()
+  } else {
+    document.getElementById('btn_valider').style.display = 'block';
+    let container = document.querySelector("#thermostat_array");
+    let html = '<table class="table table-bordered">';
+    html += "<thead><tr>";
+    html += "<th>{{N°}}</th>";
+    html += "<th>{{Configuration}}</th>";
+    html += "<th>{{Valeur}}</th>";
+    html += "</tr></thead><tbody>";
+
+    for (let i = 1; i <= nb_thermostat; i++) {
+
+      // Ligne 1 : Équipement
+      html += "<tr style='border-top: 3px solid #337ab7'>";
+      html += "<td rowspan='4'>" + i + "</td>";
+      html += "<td>{{Equipement}}</td>";
+      html += "<td><div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='equipment_" + i + "' id='equipment_" + i + "' placeholder='Sélectionner équipement' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='equipment_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div></td></tr>";
+
+      // Ligne 2 : Commande personnelle
+      html += "<tr>";
+      html += "<td>{{Commande personnelle}}</td>";
+      html += "<td><div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_custom_" + i + "' id='cmd_custom_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_custom_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div></td></tr>";
+
+      // Ligne 3 : Température intérieure
+      html += "<tr>";
+      html += "<td>{{Température intérieure}}</td>";
+      html += "<td><div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_temp_" + i + "' id='cmd_temp_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_temp_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div></td></tr>";
+
+      // Ligne 4 : 3 commandes
+      html += "<tr>";
+      html += "<td>{{Actions}}</td>";
+      html += "<td>";
+
+      // Chauffer
+      html += "<label class='label-control'>{{Chauffer}}</label>";
+      html += "<div class='input-group' style='margin-bottom:5px'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_heat_" + i + "' id='cmd_heat_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_heat_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div>";
+
+      // Tout arrêter
+      html += "<label class='label-control'>{{Tout arrêter}}</label>";
+      html += "<div class='input-group' style='margin-bottom:5px'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_stop_" + i + "' id='cmd_stop_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_stop_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div>";
+
+      // Changement de consigne
+      html += "<label class='label-control'>{{Changement de consigne}}</label>";
+      html += "<div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_setpoint_" + i + "' id='cmd_setpoint_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_setpoint_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div>";
+
+      html += "</td></tr>";
+    }
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+
+    $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
+
+      var inputId = $(this).data('input');
+
+      jeedom.eqLogic.getSelectModal({}, function (result) {
+
+        if (result) {
+          $('#' + inputId)
+            .val(result.human)                 // ✅ on stocke l'ID
+            .attr('data-eqlogic-id', result.id) // facultatif
+            .trigger('change');
+
+          // On affiche le nom lisible
+          $('#' + inputId).val(result.human);
+        }
+
+      });
+
+    });
+    $(document).off('click', '.bt_selectCmd').on('click', '.bt_selectCmd', function () {
+      var inputId = $(this).data('input');
+
+      jeedom.cmd.getSelectModal({}, function (result) {
+        if (result) {
+          $('#' + inputId)
+            .val(result.human)
+            .attr('data-cmd-id', result.id)
+            .trigger('change');
+        }
+      });
+    });
+
+  }
+}
+
+function log() {
+
+  fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      action: "log"
+    }),
+  })
+    .then((response) => response.text())
+    .then((data) => {
+      if (data.state === "ok") {
+        alert("Les logs sont affichés !");
+      } else {
+        alert(data.result);
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur:", error);
+      alert("Erreur lors de l'affichage des logs :");
     });
 }
 

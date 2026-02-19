@@ -32,6 +32,16 @@ try {
 
   log::add('ImactPlugin', 'debug', '=== AJAX appelé ===');
   log::add('ImactPlugin', 'debug', 'Action: ' . init('action'));
+  if (init('action') == 'log') {
+    try {
+      ImactPlugin::log();
+      log::add("ImactPlugin",'info','log appelé avec succès');
+      ajax::success('Logs affichés avec succès');
+    } catch (Exception $e) {
+      ajax::error($e->getMessage());
+    }
+  }
+
   if (init('action') == 'addLEDS') {
     // Vérifier les données brutes
     log::add('ImactPlugin', 'debug', 'LEDs brutes: ' . init('leds'));
@@ -60,8 +70,8 @@ try {
     ajax::success($ledCreated . ' objet(s) créé(s) avec succès');
   }
 
-  if (init('action')=='addTHERMOSTATS') {
-    $thermostat=json_decode(init('thermostat'));
+  if (init('action') == 'addTHERMOSTATS') {
+    $thermostat = json_decode(init('thermostat'));
     $thermostatCreated = ImactPlugin::createThermostat($thermostat);
 
     ajax::success($thermostatCreated);
