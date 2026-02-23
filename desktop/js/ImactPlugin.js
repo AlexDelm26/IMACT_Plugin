@@ -134,13 +134,25 @@ function addLED() {
     });
 }
 function addThermostat() {
-  let nb_thermostat = document.querySelector('#thermostat_number').value;
+  let nb_thermostat = parseInt(document.querySelector('#thermostat_number').value)
+  const thermostats = []
+  for (let i = 1; i <= nb_thermostat; i++) {
+    thermostats.push({
+      nomThermostat: document.getElementById('nomThermostat_' + i).value,
+      commandePersonnelle: document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null,
+      temperatureInterieure: document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null,
+      commandeChauffer: document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null,
+      commandeArreter: document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null,
+      commandeConsigne: document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null,
+      consigneZone: document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? null
+    });
+  }
   fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       action: "addTHERMOSTATS",
-      thermostat: nb_thermostat
+      thermostat: JSON.stringify(thermostats)
     }),
   })
     .then((response) => response.json())
@@ -155,7 +167,7 @@ function addThermostat() {
     })
     .catch((error) => {
       console.error("Erreur:", error);
-      alert("Erreur lors de la création :".error);
+      alert("Erreur lors de la création :" + error);
     });
 }
 
@@ -178,10 +190,10 @@ function addChampThermostat() {
 
       // Ligne 1 : Équipement
       html += "<tr style='border-top: 3px solid #337ab7'>";
-      html += "<td rowspan='4'>" + i + "</td>";
+      html += "<td rowspan='5'>" + i + "</td>";
       html += "<td>{{Nom}}</td>";
       html += "<td>";
-      html += "<input type='text' class='form-control' data-l1key='equipment_" + i + "' id='nomEquipement' value='Thermostat - '>";
+      html += "<input type='text' class='form-control' data-l1key='equipment_" + i + "' id='nomThermostat_" + i + "' value='Thermostat - '>";
       html += "</td></tr>";
 
 
@@ -192,7 +204,7 @@ function addChampThermostat() {
       html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_custom_" + i + "' id='cmd_custom_" + i + "' placeholder='Sélectionner commande' readonly>";
       html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_custom_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
       html += "</div></td></tr>";
-      
+
 
       // Ligne 3 : Température intérieure
       html += "<tr>";
@@ -229,6 +241,14 @@ function addChampThermostat() {
       html += "</div>";
 
       html += "</td></tr>";
+
+      html += "<tr>";
+      html += "<td>{{Zone}}</td>";
+      html += "<td><div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr thermostat_zone' data-l1key='zone_" + i + "' id='zone_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='zone_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div></td></tr>";
+
     }
 
     html += "</tbody></table>";
@@ -257,10 +277,11 @@ function addChampThermostat() {
       var inputId = $(this).data('input');
 
       jeedom.cmd.getSelectModal({}, function (result) {
+        console.log('result cmd:', result);
         if (result) {
           $('#' + inputId)
             .val(result.human)
-            .attr('data-cmd-id', result.id)
+            .attr('data-cmd-id', result.cmd.id)
             .trigger('change');
         }
       });

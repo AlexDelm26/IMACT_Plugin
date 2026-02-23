@@ -35,7 +35,7 @@ try {
   if (init('action') == 'log') {
     try {
       ImactPlugin::log();
-      log::add("ImactPlugin",'info','log appelé avec succès');
+      log::add("ImactPlugin", 'info', 'log appelé avec succès');
       ajax::success('Logs affichés avec succès');
     } catch (Exception $e) {
       ajax::error($e->getMessage());
@@ -71,7 +71,8 @@ try {
   }
 
   if (init('action') == 'addTHERMOSTATS') {
-    $thermostat = json_decode(init('thermostat'));
+    $thermostat = json_decode(init('thermostat'), true);
+    log::add('ImactPlugin', 'debug', print_r($thermostat, true));
     $thermostatCreated = ImactPlugin::createThermostat($thermostat);
 
     ajax::success($thermostatCreated);
