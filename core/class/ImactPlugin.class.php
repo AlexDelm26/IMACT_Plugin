@@ -225,7 +225,7 @@ class ImactPlugin extends eqLogic
         }
         $thermo->setConfiguration('hideLockCmd', 1);
 
-        $commandesZone = eqLogic::byId(440);
+        $commandesZone = eqLogic::byId($thermostat['consigneZone']);
         $modesThermostat = $thermo->getCmd('action', 'thermostat');
         $thermo->setConfiguration('existingMode', [
           [
