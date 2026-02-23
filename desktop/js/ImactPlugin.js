@@ -179,11 +179,11 @@ function addChampThermostat() {
       // Ligne 1 : Équipement
       html += "<tr style='border-top: 3px solid #337ab7'>";
       html += "<td rowspan='4'>" + i + "</td>";
-      html += "<td>{{Equipement}}</td>";
-      html += "<td><div class='input-group'>";
-      html += "<input type='text' class='form-control eqLogicAttr' data-l1key='equipment_" + i + "' id='equipment_" + i + "' placeholder='Sélectionner équipement' readonly>";
-      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='equipment_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
-      html += "</div></td></tr>";
+      html += "<td>{{Nom}}</td>";
+      html += "<td>";
+      html += "<input type='text' class='form-control' data-l1key='equipment_" + i + "' id='nomEquipement' value='Thermostat - '>";
+      html += "</td></tr>";
+
 
       // Ligne 2 : Commande personnelle
       html += "<tr>";
@@ -192,6 +192,7 @@ function addChampThermostat() {
       html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_custom_" + i + "' id='cmd_custom_" + i + "' placeholder='Sélectionner commande' readonly>";
       html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_custom_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
       html += "</div></td></tr>";
+      
 
       // Ligne 3 : Température intérieure
       html += "<tr>";

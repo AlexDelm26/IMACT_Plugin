@@ -99,6 +99,7 @@ class ImactPlugin extends eqLogic
     $cmdInfo = new cmd();
     $cmdInfo->setName('Etat');
     $cmdInfo->setEqLogic_id($virtual->getId());
+    $cmdInfo->setLogicalId('etatLed');
     $cmdInfo->setType('info');
     $cmdInfo->setSubType('binary');
     $cmdInfo->setIsVisible(0);
@@ -163,15 +164,25 @@ class ImactPlugin extends eqLogic
     log::add('ImactPlugin', 'debug', 'Commande off créée - infoName: #' . $cmdSourceOff->getId() . '#');
   }
 
-  public static function createThermostat(int $nbThermostat)
+  public static function createThermostat($thermostat)
   {
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
+
+    // $consigneZone=eqLogic::byId($thermostat['idZone']);
+    // $consigneBoost=$consigneZone->getCmd('info','consigneBoost');
+    // $consigneConfort=$consigneZone->getCmd('info','consigneConfort');
+    // $consigneEco=$consigneZone->getCmd('info','consigneEco');
+    // $consigneAbsent=$consigneZone->getCmd('info','consigneAbsent');
+    // $consigneHorsGel=$consigneZone->getCmd('info','consigneHorsGel');
+
+    $commandesZone = eqLogic::byId(440);
+
     try {
       include_file('core', 'thermostat', 'class', 'thermostat');
       if (!class_exists('thermostat')) {
         log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
       }
-      for ($i = 0; $i < $nbThermostat; $i++) {
+      for ($i = 0; $i < $thermostat; $i++) {
 
 
         $thermo = new thermostat();
@@ -180,7 +191,7 @@ class ImactPlugin extends eqLogic
         $thermo->setIsEnable(1);
         $thermo->setIsVisible(1);
         /* Fix */
-        $thermo->setObject_id(null);
+        $thermo->setObject_id(null); // A changer plus tard
         $thermo->setConfiguration('order_min', 5);
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
@@ -188,7 +199,7 @@ class ImactPlugin extends eqLogic
         $thermo->save();
         /* */
         // Action
-        $chauffer = $thermo->getCmd('action', 'thermostat');
+        $modesThermostat = $thermo->getCmd('action', 'thermostat');
         // $thermo->setConfiguration('heating', '#' . $chauffer->getId() . '#');
         // $thermo->setConfiguration('heating', [
         //   [
@@ -211,14 +222,54 @@ class ImactPlugin extends eqLogic
             'name' => 'Boost',
             'actions' => [
               [
-                'cmd' => '#' . $chauffer->getId() . '#',
-                'options' => ['slider' => 23] // à mettre dynamiquement
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneBoost')->execCmd()] // à mettre dynamiquement
               ]
             ]
-          ]
+          ],
+          [
+            'isVisible' => 1,
+            'name' => 'Confort',
+            'actions' => [
+              [
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneConfort')->execCmd()] // à mettre dynamiquement
+              ]
+            ]
+          ],
+          [
+            'isVisible' => 1,
+            'name' => 'Eco',
+            'actions' => [
+              [
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneEco')->execCmd()] // à mettre dynamiquement
+              ]
+            ]
+          ],
+          [
+            'isVisible' => 1,
+            'name' => 'Absent',
+            'actions' => [
+              [
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneAbsent')->execCmd()] // à mettre dynamiquement
+              ]
+            ]
+          ],
+          [
+            'isVisible' => 1,
+            'name' => 'Hors Gel',
+            'actions' => [
+              [
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneHorsGel')->execCmd()] // à mettre dynamiquement
+              ]
+            ]
+          ],
         ]);
         $thermo->save();
-        log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
+        // log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
       }
 
     } catch (\Throwable $th) {
@@ -228,11 +279,18 @@ class ImactPlugin extends eqLogic
   }
   public static function log()
   {
-    $eqLogic = eqLogic::byId(453);
+    $eqLogic = eqLogic::byId(440);
     log::add('ImactPlugin', 'debug', '=== Commandes de ' . $eqLogic->getName() . ' ===');
-    log::add('ImactPlugin', 'debug', $eqLogic->getCmd('action', 'thermostat')->getHumanName());
+    // log::add('ImactPlugin', 'debug', $eqLogic->getCmd('action', 'thermostat')->getHumanName());
+    // log::add('ImactPlugin', 'debug', print_r($eqLogic->getCmd(), true));
+    $i = 0;
     foreach ($eqLogic->getCmd() as $cmd) {
-      // log::add('ImactPlugin', 'debug', 'Nom: ' . $cmd->getName() . ' | LogicalId: ' . $cmd->getLogicalId() . ' | Type: ' . $cmd->getType());
+      log::add('ImactPlugin', 'debug', 'Id: ' . $i . ' | ' . 'Nom: ' . $cmd->getName() . ' | LogicalId: ' . $cmd->getLogicalId() . ' | Type: ' . $cmd->getType());
+      $i = $i + 1;
+    }
+    foreach ($eqLogic->getCmd() as $consigneZone) {
+      // log::add('ImactPlugin', 'debug', print_r($consigneZone, true));
+      log::add('ImactPlugin', 'debug', $consigneZone->getConfiguration('calcul'));
     }
   }
 }
