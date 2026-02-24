@@ -219,13 +219,13 @@ class ImactPlugin extends eqLogic
         }
         $thermo->setConfiguration('temperature_indoor_min', 0);
         $thermo->setConfiguration('temperature_indoor_max', 40);
-        $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#'); // A DYNAMISER PLUS TARD
+        // $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
         if ($thermostat['commandePersonnelle']) {
           $thermo->setConfiguration('customCmd', '#' . $thermostat['commandePersonnelle'] . '#'); // A CHOISIR
         }
         $thermo->setConfiguration('hideLockCmd', 1);
 
-        $commandesZone = eqLogic::byId($thermostat['consigneZone']);
+        $commandesZone = eqLogic::byId(440);
         $modesThermostat = $thermo->getCmd('action', 'thermostat');
         $thermo->setConfiguration('existingMode', [
           [
@@ -234,7 +234,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneBoost')->getCache('value')] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneBoost')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -244,7 +244,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneConfort')->getCache('value')] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -254,7 +254,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneEco')->getCache('value')] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneEco')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -264,7 +264,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneAbsent')->getCache('value')] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneAbsent')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -274,7 +274,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => $commandesZone->getCmd('info', 'ConsigneHorsGel')->getCache('value')] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneHorsGel')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],

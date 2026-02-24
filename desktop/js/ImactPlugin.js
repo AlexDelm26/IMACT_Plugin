@@ -245,7 +245,7 @@ function addChampThermostat() {
       html += "<tr>";
       html += "<td>{{Zone}}</td>";
       html += "<td><div class='input-group'>";
-      html += "<input type='text' class='form-control eqLogicAttr thermostat_zone' data-l1key='zone_" + i + "' id='zone_" + i + "' placeholder='Sélectionner commande' readonly>";
+      html += "<input type='text' class='form-control eqLogicAttr thermostat_zone' data-l1key='zone_" + i + "' id='zone_" + i + "' placeholder='Sélectionner un équipement' readonly>";
       html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='zone_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
       html += "</div></td></tr>";
 
