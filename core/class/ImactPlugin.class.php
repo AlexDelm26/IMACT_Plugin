@@ -291,12 +291,28 @@ class ImactPlugin extends eqLogic
   public static function verifyDuplicateName($thermostats): array
   {
     $duplicateName = [];
-    $thermostatsDB = eqLogic::byType('thermostat');
-    foreach ($thermostatsDB as $thermostatDB) {
-      foreach ($thermostats as $thermostat) {
-        if ($thermostat['nomThermostat'] == $thermostatDB->getName()) {
-          array_push($duplicateName, ['numeroThermostat' => $thermostat['numeroThermostat'], 'nomThermostat' => $thermostat['nomThermostat']]);
-        }
+
+    // Récupérer les noms à vérifier
+    $nomsCherches = array_map(fn($t) => $t['nomThermostat'], $thermostats);
+
+    if (empty($nomsCherches)) {
+      return [];
+    }Nam
+
+    // Requête SQL directe
+    $placeholders = implode(',', array_fill(0, count($nomsCherches), '?'));
+    $sql = "SELECT name FROM eqLogic WHERE eqType = 'thermostat' AND name IN ($placeholders)";
+
+    $nomsEnDB = DB::Prepare($sql, $nomsCherches, DB::FETCH_TYPE_ALL);
+    $nomsEnDBListe = array_column($nomsEnDB, 'name');
+
+    // Comparer
+    foreach ($thermostats as $thermostat) {
+      if (in_array($thermostat['nomThermostat'], $nomsEnDBListe)) {
+        $duplicateName[] = [
+          'numeroThermostat' => $thermostat['numeroThermostat'],
+          'nomThermostat' => $thermostat['nomThermostat']
+        ];
       }
     }
 
