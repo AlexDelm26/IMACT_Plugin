@@ -71,10 +71,16 @@ try {
   }
 
   if (init('action') == 'addTHERMOSTATS') {
-    $thermostat = json_decode(init('thermostat'), true);
-    $nameDuplicated=ImactPlugin::verifyDuplicateName($thermostat);
-    log::add('ImactPlugin', 'debug', print_r($thermostat, true));
-    $thermostatCreated = ImactPlugin::createThermostat($thermostat);
+    $thermostats = json_decode(init('thermostat'), true);
+    $nameDuplicated = ImactPlugin::verifyDuplicateName($thermostats);
+
+    if (!empty($nameDuplicated)) {
+      $details = array_map(fn($d) => '#' . $d['numeroThermostat'] . ' (' . $d['nomThermostat'] . ')', $nameDuplicated);
+      throw new Exception('Noms déjà utilisés : ' . implode(', ', $details));
+    }
+
+    log::add('ImactPlugin', 'debug', print_r($thermostats, true));
+    $thermostatCreated = ImactPlugin::createThermostat($thermostats);
 
     ajax::success($thermostatCreated);
   }

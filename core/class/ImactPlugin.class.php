@@ -288,11 +288,16 @@ class ImactPlugin extends eqLogic
     }
     return 'ajout thermostat';
   }
-  public static function verifyDuplicateName($nameChamps):array{
-    $duplicateName=[];
-    
-    if(in_array($nameChamps,$nameDB)){
-      array_push($duplicateName,$nameChamps); // Ajoute dans le tableau, les noms déjà existants
+  public static function verifyDuplicateName($thermostats): array
+  {
+    $duplicateName = [];
+    $thermostatsDB = eqLogic::byType('thermostat');
+    foreach ($thermostatsDB as $thermostatDB) {
+      foreach ($thermostats as $thermostat) {
+        if ($thermostat['nomThermostat'] == $thermostatDB->getName()) {
+          array_push($duplicateName, ['numeroThermostat' => $thermostat['numeroThermostat'], 'nomThermostat' => $thermostat['nomThermostat']]);
+        }
+      }
     }
 
     return $duplicateName;

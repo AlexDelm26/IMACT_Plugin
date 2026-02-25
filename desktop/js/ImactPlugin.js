@@ -147,20 +147,20 @@ function addThermostat() {
       commandeConsigne: document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null,
       consigneZone: document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440
     });
-    const noms = thermostats.map(t => t.nomThermostat.toLowerCase());
-    const doublonsInternes = noms.filter((nom, index) => noms.indexOf(nom) !== index);
+  }
+  const noms = thermostats.map(t => t.nomThermostat.toLowerCase());
+  const doublonsInternes = noms.filter((nom, index) => noms.indexOf(nom) !== index);
 
-    if (doublonsInternes.length > 0) {
-      const thermostatsEnDoublon = thermostats
-        .filter(t => doublonsInternes.includes(t.nomThermostat.toLowerCase()))
-        .map(t => `n°${t.numeroThermostat} (${t.nomThermostat})`);
+  if (doublonsInternes.length > 0) {
+    const thermostatsEnDoublon = thermostats
+      .filter(t => doublonsInternes.includes(t.nomThermostat.toLowerCase()))
+      .map(t => `n°${t.numeroThermostat} (${t.nomThermostat})`);
 
-      jeedomUtils.showAlert({
-        message: `Noms en doublon : ${thermostatsEnDoublon.join(', ')}`,
-        level: 'danger'
-      });
-      return;
-    }
+    jeedomUtils.showAlert({
+      message: `Noms en doublon : ${thermostatsEnDoublon.join(', ')}`,
+      level: 'danger'
+    });
+    return;
   }
   fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
     method: "POST",
@@ -177,12 +177,12 @@ function addThermostat() {
         document.querySelector("#md_modal").style.display = "none";
         location.reload();
       } else {
-        alert(data.result);
+        jeedomUtils.showAlert({ message: data.result, level: 'danger' });
       }
     })
     .catch((error) => {
       console.error("Erreur:", error);
-      alert("Erreur lors de la création : ".error);
+      jeedomUtils.showAlert({ message: "Erreur lors de la création", level: 'danger' });
     });
 }
 
