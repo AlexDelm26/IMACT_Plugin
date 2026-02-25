@@ -76,7 +76,7 @@ try {
     log::add('ImactPlugin', 'debug', 'Doublons trouvés: ' . json_encode($nameDuplicated));
 
     if (!empty($nameDuplicated)) {
-      $details = array_map(fn($d) => '#' . $d['numeroThermostat'] . ' (' . $d['nomThermostat'] . ')', $nameDuplicated);
+      $details = array_map(fn($d) => 'n°' . $d['numeroThermostat'] . ' (' . $d['nomThermostat'] . ')', $nameDuplicated);
       throw new Exception('Noms déjà utilisés : ' . implode(', ', $details));
     }
 
