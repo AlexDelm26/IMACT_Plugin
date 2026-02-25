@@ -172,9 +172,9 @@ class ImactPlugin extends eqLogic
       if (!class_exists('thermostat')) {
         log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
       }
+
+      $idTemperature = 33430; // 104 sur la template
       foreach ($thermostats as $thermostat) {
-
-
         $thermo = new thermostat();
         $thermo->setName($thermostat['nomThermostat']);
         $thermo->setEqType_name('thermostat');
@@ -219,13 +219,13 @@ class ImactPlugin extends eqLogic
         }
         $thermo->setConfiguration('temperature_indoor_min', 0);
         $thermo->setConfiguration('temperature_indoor_max', 40);
-        // $thermo->setConfiguration('temperature_outdoor', '#[Météo][Synthese Météo][Température]#');
+        $thermo->setConfiguration('temperature_outdoor', '#' . cmd::byId($idTemperature)->getId() . '#');
         if ($thermostat['commandePersonnelle']) {
-          $thermo->setConfiguration('customCmd', '#' . $thermostat['commandePersonnelle'] . '#'); // A CHOISIR
+          $thermo->setConfiguration('customCmd', '#' . $thermostat['commandePersonnelle'] . '#');
         }
         $thermo->setConfiguration('hideLockCmd', 1);
 
-        $commandesZone = eqLogic::byId(440);
+        $commandesZone = eqLogic::byId($thermostat['consigneZone']);
         $modesThermostat = $thermo->getCmd('action', 'thermostat');
         $thermo->setConfiguration('existingMode', [
           [
@@ -287,6 +287,15 @@ class ImactPlugin extends eqLogic
       log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
     }
     return 'ajout thermostat';
+  }
+  public static function verifyDuplicateName($nameChamps):array{
+    $duplicateName=[];
+    
+    if(in_array($nameChamps,$nameDB)){
+      array_push($duplicateName,$nameChamps); // Ajoute dans le tableau, les noms déjà existants
+    }
+
+    return $duplicateName;
   }
   public static function log()
   {

@@ -72,6 +72,7 @@ try {
 
   if (init('action') == 'addTHERMOSTATS') {
     $thermostat = json_decode(init('thermostat'), true);
+    $nameDuplicated=ImactPlugin::verifyDuplicateName($thermostat);
     log::add('ImactPlugin', 'debug', print_r($thermostat, true));
     $thermostatCreated = ImactPlugin::createThermostat($thermostat);
 

@@ -138,14 +138,29 @@ function addThermostat() {
   const thermostats = []
   for (let i = 1; i <= nb_thermostat; i++) {
     thermostats.push({
+      numeroThermostat: i,
       nomThermostat: document.getElementById('nomThermostat_' + i).value,
       commandePersonnelle: document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null,
       temperatureInterieure: document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null,
       commandeChauffer: document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null,
       commandeArreter: document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null,
       commandeConsigne: document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null,
-      consigneZone: document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? null
+      consigneZone: document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440
     });
+    const noms = thermostats.map(t => t.nomThermostat.toLowerCase());
+    const doublonsInternes = noms.filter((nom, index) => noms.indexOf(nom) !== index);
+
+    if (doublonsInternes.length > 0) {
+      const thermostatsEnDoublon = thermostats
+        .filter(t => doublonsInternes.includes(t.nomThermostat.toLowerCase()))
+        .map(t => `n°${t.numeroThermostat} (${t.nomThermostat})`);
+
+      jeedomUtils.showAlert({
+        message: `Noms en doublon : ${thermostatsEnDoublon.join(', ')}`,
+        level: 'danger'
+      });
+      return;
+    }
   }
   fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
     method: "POST",
@@ -158,7 +173,7 @@ function addThermostat() {
     .then((response) => response.json())
     .then((data) => {
       if (data.state === "ok") {
-        alert(" Thermostats créée(s) avec succès test");
+        alert("Thermostats créé(s) avec succès");
         document.querySelector("#md_modal").style.display = "none";
         location.reload();
       } else {
@@ -167,7 +182,7 @@ function addThermostat() {
     })
     .catch((error) => {
       console.error("Erreur:", error);
-      alert("Erreur lors de la création :" + error);
+      alert("Erreur lors de la création : ".error);
     });
 }
 
