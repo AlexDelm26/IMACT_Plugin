@@ -83,6 +83,7 @@ try {
     $thermostatCreated = ImactPlugin::createThermostat($thermostats);
 
     ajax::success($thermostatCreated);
+    exit;
   }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
