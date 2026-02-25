@@ -73,6 +73,7 @@ try {
   if (init('action') == 'addTHERMOSTATS') {
     $thermostats = json_decode(init('thermostat'), true);
     $nameDuplicated = ImactPlugin::verifyDuplicateName($thermostats);
+    log::add('ImactPlugin', 'debug', 'Doublons trouvés: ' . json_encode($nameDuplicated));
 
     if (!empty($nameDuplicated)) {
       $details = array_map(fn($d) => '#' . $d['numeroThermostat'] . ' (' . $d['nomThermostat'] . ')', $nameDuplicated);

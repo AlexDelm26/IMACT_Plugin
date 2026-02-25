@@ -181,7 +181,7 @@ class ImactPlugin extends eqLogic
         $thermo->setIsEnable(1);
         $thermo->setIsVisible(1);
         /* Fix */
-        $thermo->setObject_id(null); // A changer plus tard
+        $thermo->setObject_id(null); // 22 sur la template
         $thermo->setConfiguration('order_min', 5);
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
@@ -285,6 +285,7 @@ class ImactPlugin extends eqLogic
 
     } catch (\Throwable $th) {
       log::add('ImactPlugin', 'error', 'Erreur createThermostat : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
+      throw $th;
     }
     return 'ajout thermostat';
   }
@@ -293,22 +294,25 @@ class ImactPlugin extends eqLogic
     $duplicateName = [];
 
     // Récupérer les noms à vérifier
-    $nomsCherches = array_map(fn($t) => $t['nomThermostat'], $thermostats);
+    $nomsCherches = array_map(fn($t) => trim($t['nomThermostat']), $thermostats);
+    log::add('ImactPlugin', 'debug', 'Noms cherchés: ' . json_encode($nomsCherches));
 
     if (empty($nomsCherches)) {
       return [];
-    }Nam
+    }
 
     // Requête SQL directe
     $placeholders = implode(',', array_fill(0, count($nomsCherches), '?'));
-    $sql = "SELECT name FROM eqLogic WHERE eqType = 'thermostat' AND name IN ($placeholders)";
-
+    $sql = "SELECT name FROM eqLogic WHERE eqType_name = 'thermostat' AND name IN ($placeholders)";
+    log::add('ImactPlugin', 'debug', 'SQL: ' . $sql);
     $nomsEnDB = DB::Prepare($sql, $nomsCherches, DB::FETCH_TYPE_ALL);
+    log::add('ImactPlugin', 'debug', 'Résultat DB: ' . json_encode($nomsEnDB));
     $nomsEnDBListe = array_column($nomsEnDB, 'name');
 
     // Comparer
     foreach ($thermostats as $thermostat) {
-      if (in_array($thermostat['nomThermostat'], $nomsEnDBListe)) {
+      $nomsEnDBListeLower = array_map('strtolower', $nomsEnDBListe);
+      if (in_array(strtolower($thermostat['nomThermostat']), $nomsEnDBListeLower)) {
         $duplicateName[] = [
           'numeroThermostat' => $thermostat['numeroThermostat'],
           'nomThermostat' => $thermostat['nomThermostat']

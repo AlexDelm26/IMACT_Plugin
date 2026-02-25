@@ -136,18 +136,45 @@ function addLED() {
 function addThermostat() {
   let nb_thermostat = parseInt(document.querySelector('#thermostat_number').value)
   const thermostats = []
+  const thermostatsInvalides = []
   for (let i = 1; i <= nb_thermostat; i++) {
+    let nomThermostat = document.getElementById('nomThermostat_' + i).value.trim()
+    if (nomThermostat === 'Thermostat -' || nomThermostat === '') {
+      thermostatsInvalides.push({
+        numeroThermostat: i,
+        nomThermostat: nomThermostat
+      })
+    }
+    let commandePersonnelle = document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null
+    let temperatureInterieure = document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null
+    let commandeChauffer = document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null
+    let commandeArreter = document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null
+    let commandeConsigne = document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null
+    let consigneZone = document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440 // 8 sur la template
+
+
     thermostats.push({
       numeroThermostat: i,
-      nomThermostat: document.getElementById('nomThermostat_' + i).value,
-      commandePersonnelle: document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null,
-      temperatureInterieure: document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null,
-      commandeChauffer: document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null,
-      commandeArreter: document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null,
-      commandeConsigne: document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null,
-      consigneZone: document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440
+      nomThermostat: nomThermostat,
+      commandePersonnelle: commandePersonnelle,
+      temperatureInterieure: temperatureInterieure,
+      commandeChauffer: commandeChauffer,
+      commandeArreter: commandeArreter,
+      commandeConsigne: commandeConsigne,
+      consigneZone: consigneZone,
     });
   }
+  if (thermostatsInvalides.length > 0) {
+    const thermostatsInvalidesLabels = thermostatsInvalides
+      .map(t => `n°${t.numeroThermostat} (${t.nomThermostat || 'nom vide'})`);
+
+    jeedomUtils.showAlert({
+      message: `Noms invalides : ${thermostatsInvalidesLabels.join(', ')}`,
+      level: 'danger'
+    });
+    return;
+  }
+
   const noms = thermostats.map(t => t.nomThermostat.toLowerCase());
   const doublonsInternes = noms.filter((nom, index) => noms.indexOf(nom) !== index);
 
@@ -173,7 +200,7 @@ function addThermostat() {
     .then((response) => response.json())
     .then((data) => {
       if (data.state === "ok") {
-        alert("Thermostats créé(s) avec succès");
+        jeedomUtils.showAlert({ message: `${thermostats.length} thermostat(s) ont été créé(s)`, level: 'success' });
         document.querySelector("#md_modal").style.display = "none";
         location.reload();
       } else {
