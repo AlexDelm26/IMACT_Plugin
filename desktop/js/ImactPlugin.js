@@ -133,7 +133,11 @@ function addLED() {
       alert("Erreur lors de la création");
     });
 }
-function addThermostat() {
+async function addThermostat() {
+  const btn = document.querySelector('#btn_valider button')
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = 'Création en cours..';
   let nb_thermostat = parseInt(document.querySelector('#thermostat_number').value)
   const thermostats = []
   const thermostatsInvalides = []
@@ -189,28 +193,34 @@ function addThermostat() {
     });
     return;
   }
-  fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      action: "addTHERMOSTATS",
-      thermostat: JSON.stringify(thermostats)
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
+
+
+  let success = 0;
+  for (const thermostat of thermostats) {
+    try {
+      const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "addTHERMOSTAT", // singulier
+          thermostat: JSON.stringify(thermostat)
+        }),
+      });
+      const data = await response.json();
       if (data.state === "ok") {
-        jeedomUtils.showAlert({ message: `${thermostats.length} thermostat(s) ont été créé(s)`, level: 'success' });
-        document.querySelector("#md_modal").style.display = "none";
-        location.reload();
+        success++;
+        jeedomUtils.showAlert({ message: `${success}/${thermostats.length} créé(s)...`, level: 'success' });
       } else {
-        jeedomUtils.showAlert({ message: data.result, level: 'danger' });
+        jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' });
       }
-    })
-    .catch((error) => {
-      console.error("Erreur:", error);
-      jeedomUtils.showAlert({ message: "Erreur lors de la création", level: 'danger' });
-    });
+    } catch (error) {
+      jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat}`, level: 'danger' });
+    }
+  }
+
+  btn.disabled = false;
+  jeedomUtils.showAlert({ message: `${success}/${thermostats.length} thermostat(s) créé(s)`, level: 'success' });
+  location.reload();
 }
 
 function addChampThermostat() {

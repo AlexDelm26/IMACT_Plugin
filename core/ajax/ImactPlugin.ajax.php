@@ -70,22 +70,18 @@ try {
     ajax::success($ledCreated . ' objet(s) créé(s) avec succès');
   }
 
-  if (init('action') == 'addTHERMOSTATS') {
-    $thermostats = json_decode(init('thermostat'), true);
-    $nameDuplicated = ImactPlugin::verifyDuplicateName($thermostats);
-    log::add('ImactPlugin', 'debug', 'Doublons trouvés: ' . json_encode($nameDuplicated));
-
-    if (!empty($nameDuplicated)) {
-      $details = array_map(fn($d) => 'n°' . $d['numeroThermostat'] . ' (' . $d['nomThermostat'] . ')', $nameDuplicated);
-      throw new Exception('Noms déjà utilisés : ' . implode(', ', $details));
-    }
-
-    log::add('ImactPlugin', 'debug', print_r($thermostats, true));
-    $thermostatCreated = ImactPlugin::createThermostat($thermostats);
-
-    ajax::success($thermostatCreated);
+  if (init('action') == 'addTHERMOSTAT') {
+    $thermostat = json_decode(init('thermostat'), true);
+    // $nameDuplicated = ImactPlugin::verifyDuplicateName([$thermostat]);
+    
+    // if (!empty($nameDuplicated)) {
+    //     throw new Exception('Nom déjà utilisé : ' . $thermostat['nomThermostat']);
+    // }
+    
+    ImactPlugin::createThermostat([$thermostat]);
+    ajax::success('ok');
     exit;
-  }
+}
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */
