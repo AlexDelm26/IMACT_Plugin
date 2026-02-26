@@ -143,12 +143,12 @@ async function addThermostat() {
   const thermostatsInvalides = []
   for (let i = 1; i <= nb_thermostat; i++) {
     let nomThermostat = document.getElementById('nomThermostat_' + i).value.trim()
-    if (nomThermostat === 'Thermostat -' || nomThermostat === '') {
-      thermostatsInvalides.push({
-        numeroThermostat: i,
-        nomThermostat: nomThermostat
-      })
-    }
+    // if (nomThermostat === 'Thermostat -' || nomThermostat === '') {
+    //   thermostatsInvalides.push({
+    //     numeroThermostat: i,
+    //     nomThermostat: nomThermostat
+    //   })
+    // }
     let commandePersonnelle = document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null
     let temperatureInterieure = document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeChauffer = document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null
@@ -159,7 +159,7 @@ async function addThermostat() {
 
     thermostats.push({
       numeroThermostat: i,
-      nomThermostat: nomThermostat,
+      nomThermostat: nomThermostat+i,
       commandePersonnelle: commandePersonnelle,
       temperatureInterieure: temperatureInterieure,
       commandeChauffer: commandeChauffer,
@@ -169,6 +169,8 @@ async function addThermostat() {
     });
   }
   if (thermostatsInvalides.length > 0) {
+    btn.disabled = false;
+    btn.textContent = 'Valider';
     const thermostatsInvalidesLabels = thermostatsInvalides
       .map(t => `n°${t.numeroThermostat} (${t.nomThermostat || 'nom vide'})`);
 
@@ -217,10 +219,12 @@ async function addThermostat() {
       jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat}`, level: 'danger' });
     }
   }
-
+  if (success != 0) {
+    jeedomUtils.showAlert({ message: `${success}/${thermostats.length} thermostat(s) créé(s)`, level: 'success' });
+    location.reload();
+  }
   btn.disabled = false;
-  jeedomUtils.showAlert({ message: `${success}/${thermostats.length} thermostat(s) créé(s)`, level: 'success' });
-  location.reload();
+  btn.textContent = 'Valider';
 }
 
 function addChampThermostat() {

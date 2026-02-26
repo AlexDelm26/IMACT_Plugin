@@ -292,27 +292,18 @@ class ImactPlugin extends eqLogic
   public static function verifyDuplicateName($thermostats): array
   {
     $duplicateName = [];
-
-    // Récupérer les noms à vérifier
     $nomsCherches = array_map(fn($t) => trim($t['nomThermostat']), $thermostats);
-    log::add('ImactPlugin', 'debug', 'Noms cherchés: ' . json_encode($nomsCherches));
 
     if (empty($nomsCherches)) {
       return [];
     }
 
-    // Requête SQL directe
-    $placeholders = implode(',', array_fill(0, count($nomsCherches), '?'));
-    $sql = "SELECT name FROM eqLogic WHERE eqType_name = 'thermostat' AND name IN ($placeholders)";
-    log::add('ImactPlugin', 'debug', 'SQL: ' . $sql);
-    $nomsEnDB = DB::Prepare($sql, $nomsCherches, DB::FETCH_TYPE_ALL);
-    log::add('ImactPlugin', 'debug', 'Résultat DB: ' . json_encode($nomsEnDB));
-    $nomsEnDBListe = array_column($nomsEnDB, 'name');
+    // Récupérer tous les thermostats existants en DB
+    $existingThermostats = eqLogic::byType('thermostat');
+    $nomsEnDB = array_map(fn($eq) => strtolower($eq->getName()), $existingThermostats);
 
-    // Comparer
     foreach ($thermostats as $thermostat) {
-      $nomsEnDBListeLower = array_map('strtolower', $nomsEnDBListe);
-      if (in_array(strtolower($thermostat['nomThermostat']), $nomsEnDBListeLower)) {
+      if (in_array(strtolower(trim($thermostat['nomThermostat'])), $nomsEnDB)) {
         $duplicateName[] = [
           'numeroThermostat' => $thermostat['numeroThermostat'],
           'nomThermostat' => $thermostat['nomThermostat']
