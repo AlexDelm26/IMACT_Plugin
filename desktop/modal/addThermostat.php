@@ -19,7 +19,4 @@ if (!isConnect('admin')) {
     <div style="text-align: center; margin-top: 20px; display:none;" id="btn_valider">
         <button class="btn btn-success" onclick="addThermostat()">{{Valider}}</button>
     </div>
-    <div style="text-align: center; margin-top: 20px;" id="btn_log">
-        <button class="btn btn-success" onclick="log()">{{Log}}</button>
-    </div>
 </div>

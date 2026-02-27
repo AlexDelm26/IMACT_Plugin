@@ -73,15 +73,18 @@ try {
   if (init('action') == 'addTHERMOSTAT') {
     $thermostat = json_decode(init('thermostat'), true);
     $nameDuplicated = ImactPlugin::verifyDuplicateName([$thermostat]);
-    
+
     if (!empty($nameDuplicated)) {
-        throw new Exception('Nom déjà utilisé : ' . $thermostat['nomThermostat']);
+      throw new Exception('Nom déjà utilisé : ' . $thermostat['nomThermostat']);
     }
-    
+
     ImactPlugin::createThermostat([$thermostat]);
     ajax::success('ok');
     exit;
-}
+  }
+  if (init('action') == 'verifyVolet') {
+    ajax::success(ImactPlugin::verifyVoletPropExist());
+  }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */

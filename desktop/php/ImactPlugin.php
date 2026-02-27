@@ -31,6 +31,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 				<span>{{Ajouter Thermostat}}</span>
 			</div>
+			<div class="cursor logoPrimary" id="btn_add_VOLET">
+				<i class="fas fa-plus-circle"></i>
+				<br>
+
+				<span>{{Ajouter Volet}}</span>
+			</div>
 			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
 				<i class="fas fa-wrench"></i>
 				<br>

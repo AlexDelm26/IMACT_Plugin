@@ -23,6 +23,13 @@ $("#btn_add_THERMOSTAT").on("click", function () {
     .dialog("open");
 });
 
+// Pop-up du bouton Ajouter vOLET
+$("#btn_add_VOLET").on("click", function () {
+  $("#md_modal").dialog({ title: "{{Ajouter Volet}}" });
+  $("#md_modal")
+    .load("index.php?v=d&plugin=ImactPlugin&modal=addVolet")
+    .dialog("open");
+});
 $(document).on('click', '.bt_selectEqLogic', function () {
   let input = $(this).data('input');
   let inputElement = $('.eqLogicAttr[data-l1key="' + input + '"]');
@@ -143,12 +150,12 @@ async function addThermostat() {
   const thermostatsInvalides = []
   for (let i = 1; i <= nb_thermostat; i++) {
     let nomThermostat = document.getElementById('nomThermostat_' + i).value.trim()
-    // if (nomThermostat === 'Thermostat -' || nomThermostat === '') {
-    //   thermostatsInvalides.push({
-    //     numeroThermostat: i,
-    //     nomThermostat: nomThermostat
-    //   })
-    // }
+    if (nomThermostat === 'Thermostat -' || nomThermostat === '') {
+      thermostatsInvalides.push({
+        numeroThermostat: i,
+        nomThermostat: nomThermostat
+      })
+    }
     let commandePersonnelle = document.getElementById('cmd_custom_' + i)?.getAttribute('data-cmd-id') ?? null
     let temperatureInterieure = document.getElementById('cmd_temp_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeChauffer = document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null
@@ -159,7 +166,7 @@ async function addThermostat() {
 
     thermostats.push({
       numeroThermostat: i,
-      nomThermostat: nomThermostat+i,
+      nomThermostat: nomThermostat,
       commandePersonnelle: commandePersonnelle,
       temperatureInterieure: temperatureInterieure,
       commandeChauffer: commandeChauffer,
@@ -213,7 +220,7 @@ async function addThermostat() {
         success++;
         jeedomUtils.showAlert({ message: `${success}/${thermostats.length} créé(s)...`, level: 'success' });
       } else {
-        jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' });
+        jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
       }
     } catch (error) {
       jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat}`, level: 'danger' });
@@ -342,6 +349,86 @@ function addChampThermostat() {
         }
       });
     });
+
+  }
+}
+function addChampVolet() {
+  let nbVolet = document.querySelector('#volet_number').value;
+  if (nbVolet <= 0) {
+    alert("Saisissez au moins 1 Volet");
+  } else {
+    document.getElementById('btn_valider').style.display = 'block';
+    let container = document.querySelector("#volet_array");
+    let html = '<table class="table table-bordered">';
+    html += "<thead><tr>";
+    html += "<th>{{N°}}</th>";
+    html += "<th>{{Equipement}}</th>";
+    html += "<th>{{Etat retour ?}}</th>";
+    html += "</tr></thead><tbody>";
+    for (let i = 1; i <= nbVolet; i++) {
+
+      html += "<tr>";
+      html += "<td>{{" + i + "}}</td>";
+      html += "<td><div class='input-group'>";
+      html += "<input type='text' class='form-control eqLogicAttr thermostat_zone' data-l1key='zone_" + i + "' id='zone_" + i + "' placeholder='Sélectionner un équipement' readonly>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='zone_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "</div></td>";
+      html += "<td><input type='checkbox'data-l1key='etatRetour_" + i + "' id='etatRetour_" + i + "' checked></td>";
+      html += "</tr>";
+    }
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+
+    $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
+
+      var inputId = $(this).data('input');
+
+      jeedom.eqLogic.getSelectModal({}, function (result) {
+
+        if (result) {
+          $('#' + inputId)
+            .val(result.human)                 // ✅ on stocke l'ID
+            .attr('data-eqlogic-id', result.id) // facultatif
+            .trigger('change');
+
+          // On affiche le nom lisible
+          $('#' + inputId).val(result.human);
+        }
+
+      });
+
+    });
+
+
+  }
+}
+
+function verifyVoletProp() {
+  nbVolet = document.querySelector('#volet_number').value
+  let isVoletProp = false
+  for (let i = 1; i <= nbVolet; i++) {
+    let checkbox = document.querySelector('#etatRetour_' + i)
+    if (!checkbox.checked) {
+      isVoletProp = true
+    }
+  }
+  return isVoletProp
+}
+
+async function addVolet() {
+  if (verifyVoletProp() == true) {
+    const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "verifyVolet" })
+    });
+    const data = await response.json()
+    if (data.state === 'ok' && data.result==0) {
+      jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel est introuvable`, level: 'danger' });
+    } else if (data.state === 'ok' && data.result==1) {
+      jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel a été trouvé !`, level: 'success' });
+    }
 
   }
 }

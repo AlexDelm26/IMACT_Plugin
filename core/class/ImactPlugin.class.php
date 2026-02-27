@@ -329,5 +329,11 @@ class ImactPlugin extends eqLogic
       log::add('ImactPlugin', 'debug', $consigneZone->getConfiguration('calcul'));
     }
   }
+
+  public static function verifyVoletPropExist()
+  {
+    $plugin = plugin::byId('voletProp');
+    return $plugin->isActive();
+  }
 }
 
