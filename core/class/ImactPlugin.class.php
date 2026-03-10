@@ -167,6 +167,7 @@ class ImactPlugin extends eqLogic
   public static function createThermostat($thermostats)
   {
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
+    log::add('ImactPlugin', 'debug', var_export($thermostats, true));
     try {
       include_file('core', 'thermostat', 'class', 'thermostat');
       if (!class_exists('thermostat')) {
@@ -335,5 +336,6 @@ class ImactPlugin extends eqLogic
     $plugin = plugin::byId('voletProp');
     return $plugin->isActive();
   }
+  public static function createVolet($volet)
 }
 

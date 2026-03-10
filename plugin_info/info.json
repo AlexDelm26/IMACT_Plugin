@@ -49,6 +49,7 @@
   "category": "programming",
   "hasDependency": false,
   "hasOwnDeamon": false,
+  "maxDependancyInstallTime": 0,
   "changelog_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta/changelog",
   "changelog": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/changelog",
   "documentation_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta",

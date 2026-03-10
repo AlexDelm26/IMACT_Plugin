@@ -140,6 +140,7 @@ function addLED() {
       alert("Erreur lors de la création");
     });
 }
+
 async function addThermostat() {
   const btn = document.querySelector('#btn_valider button')
   if (btn.disabled) return;
@@ -211,7 +212,7 @@ async function addThermostat() {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          action: "addTHERMOSTAT", // singulier
+          action: "addTHERMOSTAT",
           thermostat: JSON.stringify(thermostat)
         }),
       });
@@ -356,67 +357,136 @@ function addChampVolet() {
   let nbVolet = document.querySelector('#volet_number').value;
   if (nbVolet <= 0) {
     alert("Saisissez au moins 1 Volet");
-  } else {
-    document.getElementById('btn_valider').style.display = 'block';
-    let container = document.querySelector("#volet_array");
-    let html = '<table class="table table-bordered">';
-    html += "<thead><tr>";
-    html += "<th>{{N°}}</th>";
-    html += "<th>{{Equipement}}</th>";
-    html += "<th>{{Etat retour ?}}</th>";
-    html += "</tr></thead><tbody>";
-    for (let i = 1; i <= nbVolet; i++) {
-
-      html += "<tr>";
-      html += "<td>{{" + i + "}}</td>";
-      html += "<td><div class='input-group'>";
-      html += "<input type='text' class='form-control eqLogicAttr thermostat_zone' data-l1key='zone_" + i + "' id='zone_" + i + "' placeholder='Sélectionner un équipement' readonly>";
-      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='zone_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
-      html += "</div></td>";
-      html += "<td><input type='checkbox'data-l1key='etatRetour_" + i + "' id='etatRetour_" + i + "' checked></td>";
-      html += "</tr>";
-    }
-
-    html += "</tbody></table>";
-    container.innerHTML = html;
-
-    $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
-
-      var inputId = $(this).data('input');
-
-      jeedom.eqLogic.getSelectModal({}, function (result) {
-
-        if (result) {
-          $('#' + inputId)
-            .val(result.human)                 // ✅ on stocke l'ID
-            .attr('data-eqlogic-id', result.id) // facultatif
-            .trigger('change');
-
-          // On affiche le nom lisible
-          $('#' + inputId).val(result.human);
-        }
-
-      });
-
-    });
-
-
+    return;
   }
+
+  document.getElementById('btn_valider').style.display = 'block';
+  let container = document.querySelector("#volet_array");
+  let html = '<table class="table table-bordered">';
+  html += "<thead><tr>";
+  html += "<th style='width:50px;'>{{N°}}</th>";
+  html += "<th style='width:200px;'>{{Configuration}}</th>";
+  html += "<th>{{Valeur}}</th>";
+  html += "<th style='width:120px;'>{{Etat retour ?}}</th>";
+  html += "</tr></thead>";
+
+  for (let i = 1; i <= nbVolet; i++) {
+
+    // tbody principal
+    html += "<tbody style='border-top: 3px solid #337ab7'>";
+    html += "<tr>";
+    html += "<td>" + i + "</td>";
+    html += "<td>{{Equipement}}</td>";
+    html += "<td><div class='input-group'>";
+    html += "<input type='text' class='form-control eqLogicAttr equipement_volet' data-l1key='volet_" + i + "' id='volet_" + i + "' placeholder='Sélectionner un équipement' readonly>";
+    html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='volet_" + i + "' data-index='" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+    html += "</div></td>";
+    html += "<td><input type='checkbox' data-l1key='etatRetour_" + i + "' id='etatRetour_" + i + "' checked></td>";
+    html += "</tr>";
+    html += "</tbody>";
+
+    // tbody caché pour les commandes
+    html += "<tbody id='extra_volet_" + i + "' style='display:none;'>";
+
+    html += "<tr>";
+    html += "<td></td>";
+    html += "<td>{{Commande ouverture}}</td>";
+    html += "<td><select class='form-control' id='cmd_open_" + i + "'>";
+    html += "<option value=''>-- Sélectionner équipement d'abord --</option>";
+    html += "</select></td>";
+    html += "<td></td>";
+    html += "</tr>";
+
+    html += "<tr>";
+    html += "<td></td>";
+    html += "<td>{{Commande fermeture}}</td>";
+    html += "<td><select class='form-control' id='cmd_close_" + i + "'>";
+    html += "<option value=''>-- Sélectionner équipement d'abord --</option>";
+    html += "</select></td>";
+    html += "<td></td>";
+    html += "</tr>";
+
+    html += "<tr>";
+    html += "<td></td>";
+    html += "<td>{{Commande stop}}</td>";
+    html += "<td><select class='form-control' id='cmd_stop_" + i + "'>";
+    html += "<option value=''>-- Sélectionner équipement d'abord --</option>";
+    html += "</select></td>";
+    html += "<td></td>";
+    html += "</tr>";
+
+    html += "</tbody>";
+  }
+
+  html += "</table>";
+  container.innerHTML = html;
+
+  // Listener unique pour bt_selectEqLogic
+  $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
+    var inputId = $(this).data('input');
+    var index = $(this).data('index');
+
+    jeedom.eqLogic.getSelectModal({}, function (result) {
+      if (result) {
+        $('#' + inputId)
+          .val(result.human)
+          .attr('data-eqlogic-id', result.id)
+          .trigger('change');
+
+        fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            action: 'getCmdByEqLogicId',
+            eqLogic_id: result.id
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.state === 'ok') {
+              let selectOpen = document.querySelector('#cmd_open_' + index);
+              let selectClose = document.querySelector('#cmd_close_' + index);
+              let selectStop = document.querySelector('#cmd_stop_' + index);
+              selectOpen.innerHTML = '<option value="">Sélectionner...</option>';
+              selectClose.innerHTML = '<option value="">Sélectionner...</option>';
+              selectStop.innerHTML = '<option value="">Sélectionner...</option>';
+              data.result.forEach(cmd => {
+                let opt = '<option value="' + cmd.id + '">' + cmd.name + '</option>';
+                selectOpen.innerHTML += opt;
+                selectClose.innerHTML += opt;
+                selectStop.innerHTML += opt;
+              });
+            }
+          })
+          .catch(error => console.error('Erreur:', error));
+      }
+    });
+  });
+
+  $(document).off('change', '[id^="etatRetour_"]').on('change', '[id^="etatRetour_"]', function () {
+    verifyVoletProp();
+  });
 }
 
 function verifyVoletProp() {
-  nbVolet = document.querySelector('#volet_number').value
-  let isVoletProp = false
+  let nbVolet = document.querySelector('#volet_number').value;
+  let isVoletProp = false;
   for (let i = 1; i <= nbVolet; i++) {
-    let checkbox = document.querySelector('#etatRetour_' + i)
-    if (!checkbox.checked) {
-      isVoletProp = true
+    let checkbox = document.querySelector('#etatRetour_' + i);
+    let extraTbody = document.querySelector('#extra_volet_' + i);
+    if (checkbox && !checkbox.checked) {
+      isVoletProp = true;
+      extraTbody.style.display = 'table-row-group';
+    } else {
+      extraTbody.style.display = 'none';
     }
   }
-  return isVoletProp
+  return isVoletProp;
 }
 
 async function addVolet() {
+  nbVolet = document.querySelector('#volet_number').value;
+  const volets=[]
   if (verifyVoletProp() == true) {
     const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
       method: "POST",
@@ -424,10 +494,47 @@ async function addVolet() {
       body: new URLSearchParams({ action: "verifyVolet" })
     });
     const data = await response.json()
-    if (data.state === 'ok' && data.result==0) {
+    if (data.state === 'ok' && data.result == 0) {
       jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel est introuvable`, level: 'danger' });
-    } else if (data.state === 'ok' && data.result==1) {
+    } else if (data.state === 'ok' && data.result == 1) {
       jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel a été trouvé !`, level: 'success' });
+      for (let i = 1; i <= nbVolet; i++) {
+        let cmdOpen = document.getElementById('cmd_open_' + i).value
+        let cmdClose = document.getElementById('cmd_close_' + i).value
+        let cmdStop = document.getElementById('cmd_stop_' + i).value
+        volets.push({
+          cmdOpen:cmdOpen,
+          cmdClose:cmdClose,
+          cmdStop:cmdStop,
+        })
+      }
+      for (const volet  of volets) {
+        try {
+          const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              action: "addVOLET", 
+              volet: JSON.stringify(volet)
+            }),
+          });
+          const data = await response.json();
+          if (data.state === "ok") {
+            success++;
+            jeedomUtils.showAlert({ message: `${success}/${volets.length} créé(s)...`, level: 'success' });
+          } else {
+            jeedomUtils.showAlert({ message: `Erreur thermostat n°${volet.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
+          }
+        } catch (error) {
+          jeedomUtils.showAlert({ message: `Erreur thermostat n°${volet.numeroThermostat}`, level: 'danger' });
+        }
+      }
+      if (success != 0) {
+        jeedomUtils.showAlert({ message: `${success}/${volets.length} thermostat(s) créé(s)`, level: 'success' });
+        location.reload();
+      }
+      btn.disabled = false;
+      btn.textContent = 'Valider';
     }
 
   }
@@ -459,79 +566,61 @@ function log() {
 /* Fonction permettant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {
-    let _cmd = { configuration: {} };
+    var _cmd = { configuration: {} }
   }
   if (!isset(_cmd.configuration)) {
-    _cmd.configuration = {};
+    _cmd.configuration = {}
   }
-  var tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">';
-  tr += '<td class="hidden-xs">';
-  tr += '<span class="cmdAttr" data-l1key="id"></span>';
-  tr += "</td>";
-  tr += "<td>";
-  tr += '<div class="input-group">';
-  tr +=
-    '<input class="cmdAttr form-control input-sm roundedLeft" data-l1key="name" placeholder="{{Nom de la commande}}">';
-  tr +=
-    '<span class="input-group-btn"><a class="cmdAction btn btn-sm btn-default" data-l1key="chooseIcon" title="{{Choisir une icône}}"><i class="fas fa-icons"></i></a></span>';
-  tr +=
-    '<span class="cmdAttr input-group-addon roundedRight" data-l1key="display" data-l2key="icon" style="font-size:19px;padding:0 5px 0 0!important;"></span>';
-  tr += "</div>";
-  tr +=
-    '<select class="cmdAttr form-control input-sm" data-l1key="value" style="display:none;margin-top:5px;" title="{{Commande info liée}}">';
-  tr += '<option value="">{{Aucune}}</option>';
-  tr += "</select>";
-  tr += "</td>";
-  tr += "<td>";
-  tr +=
-    '<span class="type" type="' +
-    init(_cmd.type) +
-    '">' +
-    jeedom.cmd.availableType() +
-    "</span>";
-  tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
-  tr += "</td>";
-  tr += "<td>";
-  tr +=
-    '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isVisible" checked/>{{Afficher}}</label> ';
-  tr +=
-    '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isHistorized" checked/>{{Historiser}}</label> ';
-  tr +=
-    '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="display" data-l2key="invertBinary"/>{{Inverser}}</label> ';
-  tr += '<div style="margin-top:7px;">';
-  tr +=
-    '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="minValue" placeholder="{{Min}}" title="{{Min}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">';
-  tr +=
-    '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="maxValue" placeholder="{{Max}}" title="{{Max}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">';
-  tr +=
-    '<input class="tooltips cmdAttr form-control input-sm" data-l1key="unite" placeholder="Unité" title="{{Unité}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">';
-  tr += "</div>";
-  tr += "</td>";
-  tr += "<td>";
+  var tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">'
+  tr += '<td class="hidden-xs">'
+  tr += '<span class="cmdAttr" data-l1key="id"></span>'
+  tr += '</td>'
+  tr += '<td>'
+  tr += '<div class="input-group">'
+  tr += '<input class="cmdAttr form-control input-sm roundedLeft" data-l1key="name" placeholder="{{Nom de la commande}}">'
+  tr += '<span class="input-group-btn"><a class="cmdAction btn btn-sm btn-default" data-l1key="chooseIcon" title="{{Choisir une icône}}"><i class="fas fa-icons"></i></a></span>'
+  tr += '<span class="cmdAttr input-group-addon roundedRight" data-l1key="display" data-l2key="icon" style="font-size:19px;padding:0 5px 0 0!important;"></span>'
+  tr += '</div>'
+  tr += '<select class="cmdAttr form-control input-sm" data-l1key="value" style="display:none;margin-top:5px;" title="{{Commande info liée}}">'
+  tr += '<option value="">{{Aucune}}</option>'
+  tr += '</select>'
+  tr += '</td>'
+  tr += '<td>'
+  tr += '<span class="type" type="' + init(_cmd.type) + '">' + jeedom.cmd.availableType() + '</span>'
+  tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>'
+  tr += '</td>'
+  tr += '<td>'
+  tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isVisible" checked/>{{Afficher}}</label> '
+  tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isHistorized" checked/>{{Historiser}}</label> '
+  tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="display" data-l2key="invertBinary"/>{{Inverser}}</label> '
+  tr += '<div style="margin-top:7px;">'
+  tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="minValue" placeholder="{{Min}}" title="{{Min}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
+  tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="maxValue" placeholder="{{Max}}" title="{{Max}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
+  tr += '<input class="tooltips cmdAttr form-control input-sm" data-l1key="unite" placeholder="Unité" title="{{Unité}}" style="width:30%;max-width:80px;display:inline-block;margin-right:2px;">'
+  tr += '</div>'
+  tr += '</td>'
+  tr += '<td>';
   tr += '<span class="cmdAttr" data-l1key="htmlstate"></span>';
-  tr += "</td>";
-  tr += "<td>";
+  tr += '</td>';
+  tr += '<td>'
   if (is_numeric(_cmd.id)) {
-    tr +=
-      '<a class="btn btn-default btn-xs cmdAction" data-action="configure"><i class="fas fa-cogs"></i></a> ';
-    tr +=
-      '<a class="btn btn-default btn-xs cmdAction" data-action="test"><i class="fas fa-rss"></i> {{Tester}}</a>';
+    tr += '<a class="btn btn-default btn-xs cmdAction" data-action="configure"><i class="fas fa-cogs"></i></a> '
+    tr += '<a class="btn btn-default btn-xs cmdAction" data-action="test"><i class="fas fa-rss"></i> {{Tester}}</a>'
   }
-  tr +=
-    '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove" title="{{Supprimer la commande}}"></i></td>';
-  tr += "</tr>";
-  $("#table_cmd tbody").append(tr);
-  var tr = $("#table_cmd tbody tr").last();
+  tr += '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove" title="{{Supprimer la commande}}"></i></td>'
+  tr += '</tr>'
+  $('#table_cmd tbody').append(tr)
+  var tr = $('#table_cmd tbody tr').last()
   jeedom.eqLogic.buildSelectCmd({
-    id: $(".eqLogicAttr[data-l1key=id]").value(),
-    filter: { type: "info" },
+    id: $('.eqLogicAttr[data-l1key=id]').value(),
+    filter: { type: 'info' },
     error: function (error) {
-      $("#div_alert").showAlert({ message: error.message, level: "danger" });
+      $('#div_alert').showAlert({ message: error.message, level: 'danger' })
     },
     success: function (result) {
-      tr.find(".cmdAttr[data-l1key=value]").append(result);
-      tr.setValues(_cmd, ".cmdAttr");
-      jeedom.cmd.changeType(tr, init(_cmd.subType));
-    },
-  });
+      tr.find('.cmdAttr[data-l1key=value]').append(result)
+      tr.setValues(_cmd, '.cmdAttr')
+      jeedom.cmd.changeType(tr, init(_cmd.subType))
+    }
+  })
 }
