@@ -167,7 +167,6 @@ class ImactPlugin extends eqLogic
   public static function createThermostat($thermostats)
   {
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
-    log::add('ImactPlugin', 'debug', var_export($thermostats, true));
     try {
       include_file('core', 'thermostat', 'class', 'thermostat');
       if (!class_exists('thermostat')) {
@@ -337,5 +336,38 @@ class ImactPlugin extends eqLogic
     return $plugin->isActive();
   }
   public static function createVolet($volet)
+  {
+    log::add('ImactPlugin', 'debug', var_export($volet, true));
+
+    try {
+      include_file('core', 'voletProp', 'class', 'voletProp');
+      include_file('core', 'virtual', 'class', 'virtual');
+      $eqLogic = eqLogic::byId($volet['idVolet']);
+      $nomComplet = explode(' - ', $eqLogic->getName());
+
+      if ($volet['etatRetour']) {
+        $virtual = new virtual();
+        $virtual->setName($nomComplet[1]);
+        $virtual->setEqType_name('virtual');
+        $virtual->setIsEnable(1);
+        $virtual->setObject_id(null);
+        $virtual->save();
+      } else {
+        $voletProp = new voletProp();
+        $voletProp->setName($nomComplet[1]);
+        $voletProp->setObject_id(null);
+        $voletProp->setEqType_name('voletProp');
+        $voletProp->setIsEnable(1);
+        $voletProp->setConfiguration('cmdUp', '#' . $volet['cmdOpen'] . '#');
+        $voletProp->setConfiguration('cmdStop', '#' . $volet['cmdStop'] . '#');
+        $voletProp->setConfiguration('cmdDown', '#' . $volet['cmdClose'] . '#');
+        $voletProp->save();
+      }
+    } catch (\Throwable $th) {
+      log::add('ImactPlugin', 'error', 'Erreur volet : ' . $th->getMessage() . ' ligne ' . $th->getLine() . ' dans ' . $th->getFile());
+      throw $th;
+    }
+
+  }
 }
 
