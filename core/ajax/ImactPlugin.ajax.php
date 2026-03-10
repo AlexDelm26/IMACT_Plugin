@@ -82,26 +82,26 @@ try {
     ajax::success('ok');
     exit;
   }
-  if (init('action') == 'verifyVolet') {
-    ajax::success(ImactPlugin::verifyVoletPropExist());
-  }
-  if (init('action') == 'getCmdByEqLogicId') {
-    $eqLogic_id = init('eqLogic_id');
-    $cmds = cmd::byEqLogicId($eqLogic_id);
-    $result = array();
-    foreach ($cmds as $cmd) {
-      $result[] = array(
-        'id' => $cmd->getId(),
-        'name' => $cmd->getName(),
-        'type' => $cmd->getType(),
-        'subType' => $cmd->getSubType()
-      );
-    }
-    ajax::success($result);
-  }
-  if(init('action')=='addVOLET') {
-    $volet = json_decode(init('volet',true));
-  }
+  // if (init('action') == 'verifyVolet') {
+  //   ajax::success(ImactPlugin::verifyVoletPropExist());
+  // }
+  // if (init('action') == 'getCmdByEqLogicId') {
+  //   $eqLogic_id = init('eqLogic_id');
+  //   $cmds = cmd::byEqLogicId($eqLogic_id);
+  //   $result = array();
+  //   foreach ($cmds as $cmd) {
+  //     $result[] = array(
+  //       'id' => $cmd->getId(),
+  //       'name' => $cmd->getName(),
+  //       'type' => $cmd->getType(),
+  //       'subType' => $cmd->getSubType()
+  //     );
+  //   }
+  //   ajax::success($result);
+  // }
+  // if(init('action')=='addVOLET') {
+  //   $volet = json_decode(init('volet',true));
+  // }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */
