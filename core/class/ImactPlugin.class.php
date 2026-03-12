@@ -140,7 +140,7 @@ class ImactPlugin extends eqLogic
     $cmdOn->setSubType('other');
     $cmdOn->setValue($cmdInfo->getId());
     $cmdOn->setConfiguration('virtualAction', '1');
-    $cmdOn->setConfiguration('infoName', '#' . $cmdSourceOn->getId() . '#');#61#
+    $cmdOn->setConfiguration('infoName', '#' . $cmdSourceOn->getId() . '#');
     $cmdOn->setTemplate('dashboard', 'custom::Lumière ON/OFF');
     $cmdOn->setTemplate('mobile', 'custom::Lumière ON/OFF');
     $cmdOn->setDisplay('showNameOndashboard', '0');
@@ -158,7 +158,7 @@ class ImactPlugin extends eqLogic
     $cmdOff->setSubType('other');
     $cmdOff->setValue($cmdInfo->getId());
     $cmdOff->setConfiguration('virtualAction', '0');
-    $cmdOff->setConfiguration('infoName', '#' . $cmdSourceOff->getId() . '#');#60#
+    $cmdOff->setConfiguration('infoName', '#' . $cmdSourceOff->getId() . '#');
     $cmdOff->setDisplay('showNameOndashboard', '0');
     $cmdOff->setDisplay('showNameOnmobile', '0');
     $cmdOff->setTemplate('dashboard', 'custom::Lumière ON/OFF');
@@ -177,7 +177,7 @@ class ImactPlugin extends eqLogic
         log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
       }
 
-      $idTemperature = 33430; // 104 sur la template
+      $idTemperature = 33430; // 104 sur la template | 33430 au bureau
       foreach ($thermostats as $thermostat) {
         $thermo = new thermostat();
         $thermo->setName($thermostat['nomThermostat']);
