@@ -101,7 +101,7 @@ try {
   }
   if (init('action') == 'addVOLET') {
     $volet = json_decode(init('volet'), true);
-    ImactPlugin::createVolet($volet);
+    ImactPlugin::createVolet([$volet]);
     ajax::success('ok');
     exit;
   }

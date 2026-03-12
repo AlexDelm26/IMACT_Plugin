@@ -516,93 +516,34 @@ async function addVolet() {
       ...(!etatRetour.checked && { cmdOpen: cmdOpen, cmdClose: cmdClose, cmdStop: cmdStop })
     });
     console.log(volets);
-    for (const volet of volets) {
-      try {
-        const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            action: "addVOLET",
-            volet: JSON.stringify(volet)
-          }),
-        });
-        const data = await response.json();
-        if (data.state === "ok") {
-          success++;
-          jeedomUtils.showAlert({ message: `${success}/${volets.length} créé(s)...`, level: 'success' });
-        } else {
-          jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
-        }
-      } catch (error) {
-        jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger' });
-      }
-    }
-    if (success != 0) {
-      jeedomUtils.showAlert({ message: `${success}/${volets.length} volet(s) créé(s)`, level: 'success' });
-      // location.reload();
-    }
-    btn.disabled = false;
-    btn.textContent = 'Valider';
-
-
-
-
-    // if (verifyVoletProp() == true) {
-    //   const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    //     body: new URLSearchParams({ action: "verifyVolet" })
-    //   });
-    //   const data = await response.json()
-    //   if (data.state === 'ok' && data.result == 0) {
-    //     jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel est introuvable`, level: 'danger' });
-    //   } else if (data.state === 'ok' && data.result == 1) {
-    //     jeedomUtils.showAlert({ message: `Le plugin Volet Proportionnel a été trouvé !`, level: 'success' });
-    //     for (let i = 1; i <= nbVolet; i++) {
-    //       let idVolet = document.getElementById('volet_' + i).getAttribute('data-eqlogic-id')
-    //       let etatRetour = document.querySelector('#etatRetour_' + i)
-    //       let cmdOpen = document.getElementById('cmd_open_' + i).value
-    //       let cmdClose = document.getElementById('cmd_close_' + i).value
-    //       let cmdStop = document.getElementById('cmd_stop_' + i).value
-    //       volets.push({
-    //         idVolet: idVolet,
-    //         numeroVolet: i,
-    //         etatRetour: etatRetour.checked,
-    //         ...(!etatRetour.checked && { cmdOpen, cmdClose, cmdStop })
-    //       });
-    //       console.log(volets);
-
-    //     }
-    //     for (const volet of volets) {
-    //       try {
-    //         const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-    //           method: "POST",
-    //           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    //           body: new URLSearchParams({
-    //             action: "addVOLET",
-    //             volet: JSON.stringify(volet)
-    //           }),
-    //         });
-    //         const data = await response.json();
-    //         if (data.state === "ok") {
-    //           success++;
-    //           jeedomUtils.showAlert({ message: `${success}/${volets.length} créé(s)...`, level: 'success' });
-    //         } else {
-    //           jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
-    //         }
-    //       } catch (error) {
-    //         jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger' });
-    //       }
-    //     }
-    //     if (success != 0) {
-    //       jeedomUtils.showAlert({ message: `${success}/${volets.length} volet(s) créé(s)`, level: 'success' });
-    //       // location.reload();
-    //     }
-    //     btn.disabled = false;
-    //     btn.textContent = 'Valider';
-    // }
-
   }
+  for (const volet of volets) {
+    try {
+      const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "addVOLET",
+          volet: JSON.stringify(volet)
+        }),
+      });
+      const data = await response.json();
+      if (data.state === "ok") {
+        success++;
+        jeedomUtils.showAlert({ message: `${success}/${volets.length} créé(s)...`, level: 'success' });
+      } else {
+        jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
+      }
+    } catch (error) {
+      jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger' });
+    }
+  }
+  if (success != 0) {
+    jeedomUtils.showAlert({ message: `${success}/${volets.length} volet(s) créé(s)`, level: 'success' });
+    location.reload();
+  }
+  btn.disabled = false;
+  btn.textContent = 'Valider';
 }
 
 function log() {
