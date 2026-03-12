@@ -2,6 +2,7 @@
   "id": "ImactPlugin",
   "name": "Imact Plugin",
   "pluginVersion": "0.1",
+  "version":"1.4.0",
   "specialAttributes": {
     "object": {
       "toto": {
