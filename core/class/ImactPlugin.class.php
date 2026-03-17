@@ -96,7 +96,7 @@ class ImactPlugin extends eqLogic
 
     log::add('ImactPlugin', 'debug', 'Commande state trouvée: ' . $cmdSource->getHumanName());
 
-    $cmdInfo = new cmd();
+    $cmdInfo = new virtualCmd();
     $cmdInfo->setName('Etat');
     $cmdInfo->setEqLogic_id($virtual->getId());
     $cmdInfo->setLogicalId('etatLed');
@@ -157,7 +157,7 @@ class ImactPlugin extends eqLogic
     $cmdOff->setType('action');
     $cmdOff->setSubType('other');
     $cmdOff->setValue($cmdInfo->getId());
-    $cmdOff->setConfiguration('virtualAction', '0');
+    $cmdOff->setConfiguration('virtualAction', '1');
     $cmdOff->setConfiguration('infoName', '#' . $cmdSourceOff->getId() . '#');
     $cmdOff->setDisplay('showNameOndashboard', '0');
     $cmdOff->setDisplay('showNameOnmobile', '0');
@@ -284,6 +284,80 @@ class ImactPlugin extends eqLogic
           ],
         ]);
         $thermo->save();
+        $cmdMode = $thermo->getCmd('action', 'thermostat');        // boutons modes
+        $cmdOnOff = $thermo->getCmd('action', 'thermostat_mode');   // on/off
+        $cmdOrder = $thermo->getCmd('action', 'order');             // consigne
+        $cmdState = $thermo->getCmd('info', 'state');               // état chauffe
+        $cmdPower = $thermo->getCmd('info', 'power');               // puissance
+        $cmdTempIn = $thermo->getCmd('info', 'temperature');         // temp intérieure
+        $cmdTempOut = cmd::byId($idTemperature);
+
+        $layout = [
+          "backGraph::info" => "0",
+          "parameters" => [],
+          "height" => "464px",
+          "width" => "534px",
+          "backGraph::format" => "month",
+          "backGraph::type" => "areaspline",
+          "backGraph::color" => "#4572a7",
+          "layout::dashboard" => "table",
+          "layout::dashboard::table::nbLine" => "5",
+          "layout::dashboard::table::nbColumn" => "2",
+          "layout::dashboard::table::parameters" => [
+            "center" => "1",
+            "styletable" => "",
+            "styletd" => "",
+            "text::td::1::1" => "",
+            "style::td::1::1" => "colspan=\"2\"",
+            "text::td::1::2" => "",
+            "style::td::1::2" => "display:none",
+            "text::td::2::1" => "",
+            "style::td::2::1" => "colspan=\"2\"",
+            "text::td::2::2" => "",
+            "style::td::2::2" => "display:none",
+            "text::td::3::1" => "",
+            "style::td::3::1" => "colspan=\"2\"",
+            "text::td::3::2" => "",
+            "style::td::3::2" => "display:none",
+            "text::td::4::1" => "",
+            "style::td::4::1" => "",
+            "text::td::4::2" => "",
+            "style::td::4::2" => "",
+            "text::td::5::1" => "Température extérieure",
+            "style::td::5::1" => "",
+            "text::td::5::2" => "Température intérieure",
+            "style::td::5::2" => "",
+          ],
+        ];
+        if ($cmdMode) {
+          $layout["layout::dashboard::table::cmd::" . $cmdMode->getId() . "::line"] = "1";
+          $layout["layout::dashboard::table::cmd::" . $cmdMode->getId() . "::column"] = "1";
+        }
+        if ($cmdOrder) {
+          $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::line"] = "3";
+          $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::column"] = "1";
+        }
+        if ($cmdState) {
+          $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::line"] = "4";
+          $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::column"] = "1";
+        }
+        if ($cmdPower) {
+          $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::line"] = "4";
+          $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::column"] = "2";
+        }
+        if ($cmdTempOut) {
+          $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::line"] = "5";
+          $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::column"] = "1";
+        }
+        if ($cmdTempIn) {
+          $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::line"] = "5";
+          $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::column"] = "2";
+        }
+
+        foreach ($layout as $key => $value) {
+          $thermo->setDisplay($key, $value);
+        }
+        $thermo->save();
         // log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
       }
 
@@ -372,15 +446,13 @@ class ImactPlugin extends eqLogic
         include_file('core', 'voletProp', 'class', 'voletProp');
         include_file('core', 'virtual', 'class', 'virtual');
         $eqLogic = eqLogic::byId($volet['idVolet']);
-        $plugin=$eqLogic->getEqType_name();
+        $plugin = $eqLogic->getEqType_name();
         $nomComplet = explode(' - ', $eqLogic->getName());
-        if($plugin=='virtual') {
-          $eqType=$nomComplet[1];
-        } else {
-          $eqType=$plugin;
+        if ($plugin == 'virtual') {
+          $plugin = $nomComplet[1];
         }
         $cmds = [];
-        foreach ($logicalIdPerPlugin[$eqType] as $type => $logicalIds) {
+        foreach ($logicalIdPerPlugin[$plugin] as $type => $logicalIds) {
           foreach ($logicalIds as $nom => $logicalId) {
             $cmds[$nom] = $eqLogic->getCmd($type, $logicalId);
             log::add('scenario', 'debug', "$nom : " . ($cmds[$nom] ? $cmds[$nom]->getId() : 'non trouvé'));
@@ -469,6 +541,16 @@ class ImactPlugin extends eqLogic
       throw $th;
     }
 
+  }
+  public static function verifyIsWithoutLogicalId($id)
+  {
+    $eqLogic = eqLogic::byId($id);
+    $plugin = $eqLogic->getEqType_name();
+    $nomComplet = explode(' - ', $eqLogic->getName());
+    if ($plugin == 'virtual') {
+      $plugin = $nomComplet[1];
+    }
+    return ($plugin == 'rfxcom') ? true : false;
   }
 }
 

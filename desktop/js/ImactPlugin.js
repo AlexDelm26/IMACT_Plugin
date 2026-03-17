@@ -427,44 +427,71 @@ function addChampVolet() {
     var index = $(this).data('index');
 
     jeedom.eqLogic.getSelectModal({}, function (result) {
-      if (result) {
-        $('#' + inputId)
-          .val(result.human)
-          .attr('data-eqlogic-id', result.id)
-          .trigger('change');
+      if (!result) return;
 
-        fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            action: 'getCmdByEqLogicId',
-            eqLogic_id: result.id
-          })
+      $('#' + inputId)
+        .val(result.human)
+        .attr('data-eqlogic-id', result.id);
+
+      const extraTbody = document.querySelector('#extra_volet_' + index);
+
+      // Vérifie si RFXCOM
+      fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ action: 'isWithoutLogicalId', id: result.id })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const isRfxcom = data.state === 'ok' && data.result === true;
+          extraTbody.style.display = isRfxcom ? 'table-row-group' : 'none';
+
+          // Stocke si c'est RFXCOM sur l'input pour le listener etatRetour
+          document.querySelector('#volet_' + index)?.setAttribute('data-is-rfxcom', isRfxcom);
         })
-          .then(response => response.json())
-          .then(data => {
-            if (data.state === 'ok') {
-              let selectOpen = document.querySelector('#cmd_open_' + index);
-              let selectClose = document.querySelector('#cmd_close_' + index);
-              let selectStop = document.querySelector('#cmd_stop_' + index);
-              selectOpen.innerHTML = '<option value="">Sélectionner...</option>';
-              selectClose.innerHTML = '<option value="">Sélectionner...</option>';
-              selectStop.innerHTML = '<option value="">Sélectionner...</option>';
-              data.result.forEach(cmd => {
-                let opt = '<option value="' + cmd.id + '">' + cmd.name + '</option>';
-                selectOpen.innerHTML += opt;
-                selectClose.innerHTML += opt;
-                selectStop.innerHTML += opt;
-              });
-            }
-          })
-          .catch(error => console.error('Erreur:', error));
-      }
+        .catch(error => console.error('Erreur isWithoutLogicalId:', error));
+
+      // Récupère les commandes
+      fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ action: 'getCmdByEqLogicId', eqLogic_id: result.id })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.state !== 'ok') return;
+          const selectOpen = document.querySelector('#cmd_open_' + index);
+          const selectClose = document.querySelector('#cmd_close_' + index);
+          const selectStop = document.querySelector('#cmd_stop_' + index);
+          const defaultOpt = '<option value="">Sélectionner...</option>';
+          selectOpen.innerHTML = defaultOpt;
+          selectClose.innerHTML = defaultOpt;
+          selectStop.innerHTML = defaultOpt;
+          data.result.forEach(cmd => {
+            const opt = `<option value="${cmd.id}">${cmd.name}</option>`;
+            selectOpen.innerHTML += opt;
+            selectClose.innerHTML += opt;
+            selectStop.innerHTML += opt;
+          });
+        })
+        .catch(error => console.error('Erreur getCmdByEqLogicId:', error));
     });
   });
 
-  $(document).off('change', '[id^="etatRetour_"]').on('change', '[id^="etatRetour_"]', function () {
-    verifyVoletProp();
+  // Si la case Etat Retour est coché, 
+  document.addEventListener('change', function (e) {
+    if (e.target.id?.startsWith('etatRetour_')) {
+      const index = e.target.id.split('_')[1];
+      const isRfxcom = document.querySelector('#volet_' + index)?.getAttribute('data-is-rfxcom') === 'true';
+      const extraVolet = document.querySelector('#extra_volet_' + index);
+
+      if (isRfxcom && extraVolet) {
+        // Affiche si coché, masque si décoché
+        extraVolet.style.display = e.target.checked ? 'table-row-group' : 'none';
+      } else {
+        verifyVoletProp();
+      }
+    }
   });
 }
 
@@ -474,7 +501,9 @@ function verifyVoletProp() {
   for (let i = 1; i <= nbVolet; i++) {
     let checkbox = document.querySelector('#etatRetour_' + i);
     let extraTbody = document.querySelector('#extra_volet_' + i);
-    if (checkbox && !checkbox.checked) {
+    const isRfxcom = document.querySelector('#volet_' + i)?.getAttribute('data-is-rfxcom') === 'true';
+
+    if (isRfxcom || (checkbox && !checkbox.checked)) {
       isVoletProp = true;
       extraTbody.style.display = 'table-row-group';
     } else {
@@ -490,6 +519,7 @@ async function addVolet() {
   const btn = document.querySelector('#btn_valider button')
   nbVolet = document.querySelector('#volet_number').value;
   const volets = []
+  const voletsInvalides = []
   let success = 0
   if (verifyVoletProp() == true) {
     const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
@@ -509,13 +539,36 @@ async function addVolet() {
     let cmdOpen = document.getElementById('cmd_open_' + i).value
     let cmdClose = document.getElementById('cmd_close_' + i).value
     let cmdStop = document.getElementById('cmd_stop_' + i).value
+    if (!idVolet) {
+      console.log('equipement vide');
+      voletsInvalides.push({
+        numeroVolet: i,
+        erreur: 'Veuillez sélectionner un équipement'
+      })
+    }
+    if (!etatRetour.checked) {
+      if (cmdOpen == '' || cmdClose == '' || cmdStop == '') {
+        voletsInvalides.push({
+          numeroVolet: i,
+          erreur: 'Commande(s) vide(s)'
+        })
+      }
+    }
     volets.push({
       idVolet: idVolet,
       numeroVolet: i,
       etatRetour: etatRetour.checked,
       ...(!etatRetour.checked && { cmdOpen: cmdOpen, cmdClose: cmdClose, cmdStop: cmdStop })
     });
-    console.log(volets);
+    console.log(volets)
+  }
+  if (voletsInvalides.length > 0) {
+    const erreurs = voletsInvalides.map(t => `Volet n°${t.numeroVolet} : ${t.erreur}`)
+    jeedomUtils.showAlert({
+      message: erreurs.join('<br> '),
+      level: 'danger'
+    })
+    return
   }
   for (const volet of volets) {
     try {

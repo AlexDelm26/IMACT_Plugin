@@ -105,6 +105,10 @@ try {
     ajax::success('ok');
     exit;
   }
+  if (init('action') == 'isWithoutLogicalId') {
+    $idEqLogic = init('id');
+    ajax::success(ImactPlugin::verifyIsWithoutLogicalId($idEqLogic));
+  }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */
