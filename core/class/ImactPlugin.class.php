@@ -26,7 +26,6 @@ class ImactPlugin extends eqLogic
 
     try {
       include_file('core', 'virtual', 'class', 'virtual');
-      log::add('ImactPlugin', 'debug', 'virtual.class.php chargé');
 
       $ledCreated = 0;
 
@@ -37,135 +36,84 @@ class ImactPlugin extends eqLogic
           log::add('ImactPlugin', 'error', 'Equipement ID ' . $led['idEquipement'] . ' introuvable');
           continue;
         }
-        $nomComplet = explode(' - ', $eqLogic->getName());
-        log::add('ImactPlugin', 'debug', print_r($nomComplet, true));
-        log::add('ImactPlugin', 'debug', 'Equipement source: ' . $eqLogic->getName());
 
-        // Créer l'équipement virtuel
+        $nomComplet = explode(' - ', $eqLogic->getName());
+        $nom = $nomComplet[1] ?? $nomComplet[0];
+
+        // Commandes source
+        $cmdSource = $eqLogic->getCmd('info', 'state');
+        $cmdSourceOn = $eqLogic->getCmd('action', 'json::{"state":"ON"}');
+        $cmdSourceOff = $eqLogic->getCmd('action', 'json::{"state":"OFF"}');
+
+        if (!$cmdSource || !$cmdSourceOn || !$cmdSourceOff) {
+          throw new Exception('Commandes state/ON/OFF introuvables sur ' . $eqLogic->getName());
+        }
+
+        // Équipement virtuel
         $virtual = new virtual();
         $virtual->setEqType_name('virtual');
-        $virtual->setName($nomComplet[1]);
+        $virtual->setName($nom);
         $virtual->setLogicalId('led_' . uniqid());
         $virtual->setObject_id(2);
         $virtual->setIsEnable(1);
         $virtual->setIsVisible(1);
         $virtual->save();
-        log::add('ImactPlugin', 'debug', 'Virtuel créé: ' . $virtual->getName());
 
-        // Créer les commandes
-        log::add('ImactPlugin', 'debug', 'Création commande info...');
-        $cmdInfo = self::createInfoCommand($virtual, $eqLogic);
+        // Commande info Etat
+        $cmdInfo = new virtualCmd();
+        $cmdInfo->setName('Etat');
+        $cmdInfo->setEqLogic_id($virtual->getId());
+        $cmdInfo->setLogicalId('etatLed');
+        $cmdInfo->setType('info');
+        $cmdInfo->setSubType('binary');
+        $cmdInfo->setIsVisible(0);
+        $cmdInfo->setIsHistorized(1);
+        $cmdInfo->setConfiguration('calcul', '#' . $cmdSource->getId() . '#');
+        $cmdInfo->save();
 
-        log::add('ImactPlugin', 'debug', 'Création commandes action...');
-        log::add('ImactPlugin', 'debug', 'cmdInfo avant appel: ' . ($cmdInfo ? $cmdInfo->getId() : 'NULL'));
-        log::add('ImactPlugin', 'debug', 'Type cmdInfo: ' . get_class($cmdInfo));
+        // Commande action On
+        $cmdOn = new virtualCmd();
+        $cmdOn->setName('on');
+        $cmdOn->setEqLogic_id($virtual->getId());
+        $cmdOn->setType('action');
+        $cmdOn->setSubType('other');
+        $cmdOn->setValue($cmdInfo->getId());
+        $cmdOn->setConfiguration('virtualAction', '1');
+        $cmdOn->setConfiguration('infoName', '#' . $cmdSourceOn->getId() . '#');
+        $cmdOn->setTemplate('dashboard', 'custom::Lumière ON/OFF');
+        $cmdOn->setTemplate('mobile', 'custom::Lumière ON/OFF');
+        $cmdOn->setDisplay('showNameOndashboard', '0');
+        $cmdOn->setDisplay('showNameOnmobile', '0');
+        $cmdOn->setConfiguration('updateCmdId', $cmdInfo->getId());
+        $cmdOn->save();
 
-        try {
-          self::createActionCommands($virtual, $eqLogic, $cmdInfo);
-          log::add('ImactPlugin', 'debug', 'Retour de createActionCommands OK');
-        } catch (Exception $e) {
-          log::add('ImactPlugin', 'error', 'Exception dans createActionCommands: ' . $e->getMessage());
-          log::add('ImactPlugin', 'error', 'Ligne: ' . $e->getLine());
-          log::add('ImactPlugin', 'error', 'Fichier: ' . $e->getFile());
-          throw $e;
-        }
+        // Commande action Off
+        $cmdOff = new virtualCmd();
+        $cmdOff->setName('off');
+        $cmdOff->setEqLogic_id($virtual->getId());
+        $cmdOff->setType('action');
+        $cmdOff->setSubType('other');
+        $cmdOff->setValue($cmdInfo->getId());
+        $cmdOff->setConfiguration('virtualAction', '1');
+        $cmdOff->setConfiguration('infoName', '#' . $cmdSourceOff->getId() . '#');
+        $cmdOff->setDisplay('showNameOndashboard', '0');
+        $cmdOff->setDisplay('showNameOnmobile', '0');
+        $cmdOff->setTemplate('dashboard', 'custom::Lumière ON/OFF');
+        $cmdOff->setTemplate('mobile', 'custom::Lumière ON/OFF');
+        $cmdOff->setConfiguration('updateCmdId', $cmdInfo->getId());
+        $cmdOff->save();
 
         $ledCreated++;
-        log::add('ImactPlugin', 'debug', 'LED créée avec succès');
+        log::add('ImactPlugin', 'debug', 'LED créée: ' . $nom);
       }
 
       log::add('ImactPlugin', 'debug', 'Total LEDs créées: ' . $ledCreated);
       return $ledCreated;
 
     } catch (Exception $e) {
-      log::add('ImactPlugin', 'error', 'Erreur dans createVirtualLEDs: ' . $e->getMessage());
-      log::add('ImactPlugin', 'error', 'Ligne: ' . $e->getLine());
+      log::add('ImactPlugin', 'error', 'Erreur createVirtualLEDs: ' . $e->getMessage() . ' ligne ' . $e->getLine());
       throw $e;
     }
-  }
-
-  private static function createInfoCommand($virtual, $eqLogic)
-  {
-    log::add('ImactPlugin', 'debug', '=== Début createInfoCommand ===');
-
-    $cmdSource = $eqLogic->getCmd('info', 'state');
-
-    if (!$cmdSource) {
-      throw new Exception('Commande state introuvable sur ' . $eqLogic->getName());
-    }
-
-    log::add('ImactPlugin', 'debug', 'Commande state trouvée: ' . $cmdSource->getHumanName());
-
-    $cmdInfo = new virtualCmd();
-    $cmdInfo->setName('Etat');
-    $cmdInfo->setEqLogic_id($virtual->getId());
-    $cmdInfo->setLogicalId('etatLed');
-    $cmdInfo->setType('info');
-    $cmdInfo->setSubType('binary');
-    $cmdInfo->setIsVisible(0);
-    $cmdInfo->setIsHistorized(1);
-    $cmdInfo->setConfiguration('calcul', '#' . $cmdSource->getId() . '#');
-    $cmdInfo->save();
-
-    log::add('ImactPlugin', 'debug', 'Commande Etat créée - ID: ' . $cmdInfo->getId());
-
-    $valeurInitiale = $cmdSource->execCmd(); // Récupérer la valeur actuelle de l'équipement
-    log::add('ImactPlugin', 'debug', 'Valeur initiale du ventilateur: ' . $valeurInitiale);
-
-    $cmdInfo->event($valeurInitiale); // Mettre à jour avec la valeur initiale
-    log::add('ImactPlugin', 'debug', 'Commande Etat initialisée avec: ' . $valeurInitiale);
-
-
-
-    return $cmdInfo;
-  }
-
-  private static function createActionCommands($virtual, $eqLogic, $cmdInfo)
-  {
-    if (!$cmdInfo) {
-      throw new Exception('cmdInfo est null !');
-    }
-    $cmdSourceOn = $eqLogic->getCmd('action', 'json::{"state":"ON"}');
-    $cmdSourceOff = $eqLogic->getCmd('action', 'json::{"state":"OFF"}');
-
-    if (!$cmdSourceOn || !$cmdSourceOff) {
-      throw new Exception('Commandes ON/OFF introuvables');
-    }
-
-    // On
-    $cmdOn = new virtualCmd();
-    $cmdOn->setName('on');
-    $cmdOn->setEqLogic_id($virtual->getId());
-    $cmdOn->setType('action');
-    $cmdOn->setSubType('other');
-    $cmdOn->setValue($cmdInfo->getId());
-    $cmdOn->setConfiguration('virtualAction', '1');
-    $cmdOn->setConfiguration('infoName', '#' . $cmdSourceOn->getId() . '#');
-    $cmdOn->setTemplate('dashboard', 'custom::Lumière ON/OFF');
-    $cmdOn->setTemplate('mobile', 'custom::Lumière ON/OFF');
-    $cmdOn->setDisplay('showNameOndashboard', '0');
-    $cmdOn->setDisplay('showNameOnmobile', '0');
-    $cmdOn->setConfiguration('updateCmdId', $cmdInfo->getId());
-    $cmdOn->save();
-    log::add('ImactPlugin', 'debug', 'Commande on créée - infoName: #' . $cmdSourceOn->getId() . '#');
-
-
-    // Off
-    $cmdOff = new virtualCmd();
-    $cmdOff->setName('off');
-    $cmdOff->setEqLogic_id($virtual->getId());
-    $cmdOff->setType('action');
-    $cmdOff->setSubType('other');
-    $cmdOff->setValue($cmdInfo->getId());
-    $cmdOff->setConfiguration('virtualAction', '1');
-    $cmdOff->setConfiguration('infoName', '#' . $cmdSourceOff->getId() . '#');
-    $cmdOff->setDisplay('showNameOndashboard', '0');
-    $cmdOff->setDisplay('showNameOnmobile', '0');
-    $cmdOff->setTemplate('dashboard', 'custom::Lumière ON/OFF');
-    $cmdOff->setTemplate('mobile', 'custom::Lumière ON/OFF');
-    $cmdOff->setConfiguration('updateCmdId', $cmdInfo->getId());
-    $cmdOff->save();
-    log::add('ImactPlugin', 'debug', 'Commande off créée - infoName: #' . $cmdSourceOff->getId() . '#');
   }
 
   public static function createThermostat($thermostats)
