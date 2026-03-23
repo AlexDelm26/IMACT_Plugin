@@ -120,10 +120,10 @@ class ImactPlugin extends eqLogic
   {
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
     try {
-      include_file('core', 'thermostat', 'class', 'thermostat');
-      if (!class_exists('thermostat')) {
-        log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
-      }
+      // include_file('core', 'thermostat', 'class', 'thermostat');
+      // if (!class_exists('thermostat')) {
+      //   log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
+      // }
 
       $idTemperature = 33430; // 104 sur la template | 33430 au bureau
       foreach ($thermostats as $thermostat) {
@@ -133,12 +133,13 @@ class ImactPlugin extends eqLogic
         $thermo->setIsEnable(1);
         $thermo->setIsVisible(1);
         /* Fix */
-        $thermo->setObject_id(null); // 22 sur la template
+        $thermo->setObject_id(2); // 22 sur la template
         $thermo->setConfiguration('order_min', 5);
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
         $thermo->save();
+        log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
         /* */
         // Action
         if ($thermostat['commandeChauffer']) {
@@ -202,21 +203,21 @@ class ImactPlugin extends eqLogic
           ],
           [
             'isVisible' => 1,
-            'name' => 'Eco',
-            'actions' => [
-              [
-                'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneEco')->getId() . '#'] // à mettre dynamiquement
-              ]
-            ]
-          ],
-          [
-            'isVisible' => 1,
             'name' => 'Absent',
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
                 'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneAbsent')->getId() . '#'] // à mettre dynamiquement
+              ]
+            ]
+          ],
+          [
+            'isVisible' => 1,
+            'name' => 'Eco',
+            'actions' => [
+              [
+                'cmd' => '#' . $modesThermostat->getId() . '#',
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneEco')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -232,13 +233,28 @@ class ImactPlugin extends eqLogic
           ],
         ]);
         $thermo->save();
+        log::add('ImactPlugin', 'debug', 'Commandes créés');
         $cmdMode = $thermo->getCmd('action', 'thermostat');        // boutons modes
+        $cmd = $thermo->getCmd('info', 'mode');
+        $cmd->setTemplate('dashboard', 'custom::Thermostat_statut_All');
+        $cmd->save();
+        $widgetPath = __DIR__ . '/../../data/customTemplates/dashboard/cmd.info.string.Thermostat_statut_All.html';
+        $files = glob('/var/www/html/data/customTemplates/dashboard/cmd.info.string.*.html');
+        foreach ($files as $file) {
+          log::add('ImactPlugin', 'debug', basename($file));
+        }
+        log::add('ImactPlugin', 'debug', "Fichier widget existe : " . (file_exists($widgetPath) ? 'OUI' : 'NON') . "\n");
+        $thermo->getCmd('info', 'mode')->setTemplate('dashboard', 'Thermostat_statut_All');
         $cmdOnOff = $thermo->getCmd('action', 'thermostat_mode');   // on/off
         $cmdOrder = $thermo->getCmd('action', 'order');             // consigne
         $cmdState = $thermo->getCmd('info', 'state');               // état chauffe
         $cmdPower = $thermo->getCmd('info', 'power');               // puissance
         $cmdTempIn = $thermo->getCmd('info', 'temperature');         // temp intérieure
+        $cmdTempIn->setTemplate('dashboard', 'customtemp::thermometre');
+        $cmdTempIn->save();
         $cmdTempOut = cmd::byId($idTemperature);
+        $cmdTempOut->setTemplate('dashboard', 'customtemp::thermometre');
+        $cmdTempOut->save();
 
         $layout = [
           "backGraph::info" => "0",
@@ -298,6 +314,10 @@ class ImactPlugin extends eqLogic
           $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::column"] = "1";
         }
         if ($cmdTempIn) {
+
+          $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::line', 5);
+          $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::column', 1);
+
           $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::line"] = "5";
           $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::column"] = "2";
         }
@@ -419,6 +439,7 @@ class ImactPlugin extends eqLogic
           $cmdEtatPosition = new virtualCmd();
           $cmdEtatPosition->setName('Etat Position');
           $cmdEtatPosition->setEqLogic_id($virtual->getId());
+          $cmdEtatPosition->setLogicalId('etatPosition');
           $cmdEtatPosition->setType('info');
           $cmdEtatPosition->setSubType('numeric');
           $cmdEtatPosition->setConfiguration('calcul', '#' . $cmds['position']->getId() . '#');
@@ -428,6 +449,7 @@ class ImactPlugin extends eqLogic
           $cmdOuvrir = new virtualCmd();
           $cmdOuvrir->setName('Ouvrir');
           $cmdOuvrir->setEqLogic_id($virtual->getId());
+          $cmdOuvrir->setLogicalId('ouvrir');
           $cmdOuvrir->setType('action');
           $cmdOuvrir->setSubType('other');
           $cmdOuvrir->setConfiguration('virtualAction', '1');
@@ -439,6 +461,7 @@ class ImactPlugin extends eqLogic
           $cmdFermer = new virtualCmd();
           $cmdFermer->setName('Fermer');
           $cmdFermer->setEqLogic_id($virtual->getId());
+          $cmdFermer->setLogicalId('fermer');
           $cmdFermer->setType('action');
           $cmdFermer->setSubType('other');
           $cmdFermer->setConfiguration('virtualAction', '1');
@@ -450,6 +473,7 @@ class ImactPlugin extends eqLogic
           $cmdStop = new virtualCmd();
           $cmdStop->setName('Stop');
           $cmdStop->setEqLogic_id($virtual->getId());
+          $cmdStop->setLogicalId('stop');
           $cmdStop->setType('action');
           $cmdStop->setSubType('other');
           $cmdStop->setConfiguration('virtualAction', '1');
@@ -461,6 +485,7 @@ class ImactPlugin extends eqLogic
           $cmdPosition = new virtualCmd();
           $cmdPosition->setName('Position');
           $cmdPosition->setEqLogic_id($virtual->getId());
+          $cmdPosition->setLogicalId('position');
           $cmdPosition->setType('action');
           $cmdPosition->setSubType('slider');
           $cmdPosition->setValue($cmdEtatPosition->getId());
@@ -469,6 +494,43 @@ class ImactPlugin extends eqLogic
           $cmdPosition->setDisplay('showNameOndashboard', '0');
           $cmdPosition->setDisplay('showNameOnmobile', '0');
           $cmdPosition->save();
+
+          $voletUp = $virtual->getCmd('action', 'ouvrir');
+          $voletUp->setOrder(1);
+          $voletUp->setDisplay('forceReturnLineAfter', 1);
+          $voletUp->save();
+
+          $voletStop = $virtual->getCmd('action', 'stop');
+          $voletStop->setOrder(2);
+          $voletStop->setDisplay('forceReturnLineAfter', 1);
+          $voletStop->save();
+
+          $voletDown = $virtual->getCmd('action', 'fermer');
+          $voletDown->setDisplay('forceReturnLineAfter', 1);
+          $voletDown->setOrder(3);
+          $voletDown->save();
+
+          $voletPosition = $virtual->getCmd('action', 'position');
+          $voletPosition->save();
+
+          $virtual->setDisplay('layout::dashboard', 'table');
+          $virtual->setDisplay('layout::dashboard::table::nbColumn', 3);
+          $virtual->setDisplay('layout::dashboard::table::nbLine', 1);
+          
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
+
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
+
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
+
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
+
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
+          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
 
 
         } else {
@@ -482,6 +544,71 @@ class ImactPlugin extends eqLogic
           $voletProp->setConfiguration('cmdStop', '#' . $volet['cmdStop'] . '#');
           $voletProp->setConfiguration('cmdDown', '#' . $volet['cmdClose'] . '#');
           $voletProp->save();
+          $voletProp->setDisplay('layout::dashboard', 'table');
+          $voletProp->setDisplay('layout::dashboard::table::nbColumn', 3);
+          $voletProp->setDisplay('layout::dashboard::table::nbLine', 1);
+
+          $voletDown = $voletProp->getCmd('action', 'down');
+          $voletDown->setOrder(3);
+          $voletDown->setDisplay('forceReturnLineAfter', 1);
+          $voletDown->setDisplay('showNameOnDashboard', 1);
+          $voletDown->save();
+
+          $voletStop = $voletProp->getCmd('action', 'stop');
+          $voletStop->setOrder(2);
+          $voletStop->setDisplay('forceReturnLineAfter', 1);
+          $voletStop->setDisplay('showNameOnDashboard', 1);
+          $voletStop->save();
+
+          $voletUp = $voletProp->getCmd('action', 'up');
+          $voletUp->setOrder(1);
+          $voletUp->setDisplay('forceReturnLineAfter', 1);
+          $voletUp->setDisplay('showNameOnDashboard', 1);
+          $voletUp->save();
+
+          $voletPosition = $voletProp->getCmd('action', 'position');
+          $voletPosition->setDisplay('showNameOndashboard',0);
+          $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
+          $voletPosition->save();
+
+          $hauteur = $voletProp->getCmd('info', 'hauteur');
+          $hauteur->setIsVisible(1);
+          $hauteur->setDisplay('showStatsOndashboard', 1);
+          $hauteur->setDisplay('showStatsOnmobile', 1);
+          $hauteur->setDisplay('showNameOndashboard',0);
+          $hauteur->setTemplate('dashboard', 'custom::VOLET');
+          $hauteur->save();
+
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
+
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
+
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
+
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
+
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
+          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
+
+          $voletProp->save();
+          log::add('ImactPlugin', 'debug', 'display : ' . json_encode($voletProp->getDisplay()));
+
+          $hauteur = $voletProp->getCmd('info', 'hauteur');
+          $key = 'layout::dashboard::table::cmd::' . $hauteur->getId() . '::line';
+          log::add('ImactPlugin', 'debug', 'clé hauteur : ' . $key);
+
+          // Comparer avec une qui fonctionne
+          $voletUp = $voletProp->getCmd('action', 'up');
+          $keyUp = 'layout::dashboard::table::cmd::' . $voletUp->getId() . '::line';
+          log::add('ImactPlugin', 'debug', 'clé up : ' . $keyUp);
+
+          $reload = eqLogic::byId($voletProp->getId());
+          log::add('ImactPlugin', 'debug', 'display complet : ' . json_encode($reload->getDisplay()));
+
         }
       }
     } catch (\Throwable $th) {
@@ -498,7 +625,7 @@ class ImactPlugin extends eqLogic
     if ($plugin == 'virtual') {
       $plugin = $nomComplet[1];
     }
-    return ($plugin == 'rfxcom') ? true : false;
+    return ($plugin == 'rfxcomm') ? true : false;
   }
 }
 
