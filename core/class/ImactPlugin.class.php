@@ -256,75 +256,83 @@ class ImactPlugin extends eqLogic
         $cmdTempOut->setTemplate('dashboard', 'customtemp::thermometre');
         $cmdTempOut->save();
 
-        $layout = [
-          "backGraph::info" => "0",
-          "parameters" => [],
-          "height" => "464px",
-          "width" => "534px",
-          "backGraph::format" => "month",
-          "backGraph::type" => "areaspline",
-          "backGraph::color" => "#4572a7",
-          "layout::dashboard" => "table",
-          "layout::dashboard::table::nbLine" => "5",
-          "layout::dashboard::table::nbColumn" => "2",
-          "layout::dashboard::table::parameters" => [
-            "center" => "1",
-            "styletable" => "",
-            "styletd" => "",
-            "text::td::1::1" => "",
-            "style::td::1::1" => "colspan=\"2\"",
-            "text::td::1::2" => "",
-            "style::td::1::2" => "display:none",
-            "text::td::2::1" => "",
-            "style::td::2::1" => "colspan=\"2\"",
-            "text::td::2::2" => "",
-            "style::td::2::2" => "display:none",
-            "text::td::3::1" => "",
-            "style::td::3::1" => "colspan=\"2\"",
-            "text::td::3::2" => "",
-            "style::td::3::2" => "display:none",
-            "text::td::4::1" => "",
-            "style::td::4::1" => "",
-            "text::td::4::2" => "",
-            "style::td::4::2" => "",
-            "text::td::5::1" => "Température extérieure",
-            "style::td::5::1" => "",
-            "text::td::5::2" => "Température intérieure",
-            "style::td::5::2" => "",
-          ],
-        ];
+        // $layout = [
+        //   "backGraph::info" => "0",
+        //   "parameters" => [],
+        //   "height" => "464px",
+        //   "width" => "534px",
+        //   "backGraph::format" => "month",
+        //   "backGraph::type" => "areaspline",
+        //   "backGraph::color" => "#4572a7",
+        //   "layout::dashboard" => "table",
+        //   "layout::dashboard::table::nbLine" => "5",
+        //   "layout::dashboard::table::nbColumn" => "2",
+        //   "layout::dashboard::table::parameters" => [
+        //     "center" => "1",
+        //     "styletable" => "",
+        //     "styletd" => "",
+        //     "text::td::1::1" => "",
+        //     "style::td::1::1" => "colspan=\"2\"",
+        //     "text::td::1::2" => "",
+        //     "style::td::1::2" => "display:none",
+        //     "text::td::2::1" => "",
+        //     "style::td::2::1" => "colspan=\"2\"",
+        //     "text::td::2::2" => "",
+        //     "style::td::2::2" => "display:none",
+        //     "text::td::3::1" => "",
+        //     "style::td::3::1" => "colspan=\"2\"",
+        //     "text::td::3::2" => "",
+        //     "style::td::3::2" => "display:none",
+        //     "text::td::4::1" => "",
+        //     "style::td::4::1" => "",
+        //     "text::td::4::2" => "",
+        //     "style::td::4::2" => "",
+        //     "text::td::5::1" => "Température extérieure",
+        //     "style::td::5::1" => "",
+        //     "text::td::5::2" => "Température intérieure",
+        //     "style::td::5::2" => "",
+        //   ],
+        // ];
+        $thermo->setDisplay('layout::dashboard', 'table');
+        $thermo->setDisplay('layout::dashboard::table::nbColumn', 2);
+        $thermo->setDisplay('layout::dashboard::table::nbLine', 5);
+        $thermo->setDisplay('layout::dashboard::table::parameters', [
+          'style::td::1::1' => 'colspan="2"',
+          'style::td::1::2' => 'display:none',
+        ]);
+        $thermo->save();
         if ($cmdMode) {
-          $layout["layout::dashboard::table::cmd::" . $cmdMode->getId() . "::line"] = "1";
-          $layout["layout::dashboard::table::cmd::" . $cmdMode->getId() . "::column"] = "1";
+          $thermo->setDisplay("layout::dashboard::table::cmd::" . $cmdMode->getId() . "::line", 2);
+          $thermo->setDisplay("layout::dashboard::table::cmd::" . $cmdMode->getId() . "::column", 1);
         }
-        if ($cmdOrder) {
-          $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::line"] = "3";
-          $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::column"] = "1";
-        }
-        if ($cmdState) {
-          $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::line"] = "4";
-          $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::column"] = "1";
-        }
-        if ($cmdPower) {
-          $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::line"] = "4";
-          $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::column"] = "2";
-        }
-        if ($cmdTempOut) {
-          $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::line"] = "5";
-          $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::column"] = "1";
-        }
-        if ($cmdTempIn) {
+        // if ($cmdOrder) {
+        //   $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::line"] = "3";
+        //   $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::column"] = "1";
+        // }
+        // if ($cmdState) {
+        //   $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::line"] = "4";
+        //   $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::column"] = "1";
+        // }
+        // if ($cmdPower) {
+        //   $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::line"] = "4";
+        //   $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::column"] = "2";
+        // }
+        // if ($cmdTempOut) {
+        //   $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::line"] = "5";
+        //   $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::column"] = "1";
+        // }
+        // if ($cmdTempIn) {
 
-          $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::line', 5);
-          $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::column', 1);
+        //   $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::line', 5);
+        //   $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::column', 1);
 
-          $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::line"] = "5";
-          $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::column"] = "2";
-        }
+        //   $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::line"] = "5";
+        //   $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::column"] = "2";
+        // }
 
-        foreach ($layout as $key => $value) {
-          $thermo->setDisplay($key, $value);
-        }
+        // foreach ($layout as $key => $value) {
+        //   $thermo->setDisplay($key, $value);
+        // }
         $thermo->save();
         // log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
       }
@@ -359,23 +367,7 @@ class ImactPlugin extends eqLogic
 
     return $duplicateName;
   }
-  public static function log()
-  {
-    $eqLogic = eqLogic::byId(440);
-    log::add('ImactPlugin', 'debug', '=== Commandes de ' . $eqLogic->getName() . ' ===');
-    // log::add('ImactPlugin', 'debug', $eqLogic->getCmd('action', 'thermostat')->getHumanName());
-    // log::add('ImactPlugin', 'debug', print_r($eqLogic->getCmd(), true));
-    $i = 0;
-    foreach ($eqLogic->getCmd() as $cmd) {
-      log::add('ImactPlugin', 'debug', 'Id: ' . $i . ' | ' . 'Nom: ' . $cmd->getName() . ' | LogicalId: ' . $cmd->getLogicalId() . ' | Type: ' . $cmd->getType());
-      $i = $i + 1;
-    }
-    foreach ($eqLogic->getCmd() as $consigneZone) {
-      // log::add('ImactPlugin', 'debug', print_r($consigneZone, true));
-      log::add('ImactPlugin', 'debug', $consigneZone->getConfiguration('calcul'));
-    }
-  }
-
+ 
   public static function verifyVoletPropExist()
   {
     $plugin = plugin::byId('voletProp');
@@ -498,25 +490,38 @@ class ImactPlugin extends eqLogic
           $voletUp = $virtual->getCmd('action', 'ouvrir');
           $voletUp->setOrder(1);
           $voletUp->setDisplay('forceReturnLineAfter', 1);
+          $voletUp->setDisplay('icon', '<i class="fa fa-arrow-up"></i>');
           $voletUp->save();
 
           $voletStop = $virtual->getCmd('action', 'stop');
           $voletStop->setOrder(2);
           $voletStop->setDisplay('forceReturnLineAfter', 1);
+          $voletStop->setDisplay('icon', '<i class="fa fa-stop"></i>');
           $voletStop->save();
 
           $voletDown = $virtual->getCmd('action', 'fermer');
           $voletDown->setDisplay('forceReturnLineAfter', 1);
+          $voletDown->setDisplay('icon', '<i class="fa fa-arrow-down"></i>');
           $voletDown->setOrder(3);
           $voletDown->save();
 
+          $hauteur = $virtual->getCmd('info', 'etatPosition');
+          $hauteur->setIsVisible(1);
+          $hauteur->setDisplay('showStatsOndashboard', 1);
+          $hauteur->setDisplay('showStatsOnmobile', 1);
+          $hauteur->setDisplay('showNameOndashboard', 0);
+          $hauteur->setTemplate('dashboard', 'custom::VOLET');
+          $hauteur->save();
+
+
           $voletPosition = $virtual->getCmd('action', 'position');
+          $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
           $voletPosition->save();
 
           $virtual->setDisplay('layout::dashboard', 'table');
           $virtual->setDisplay('layout::dashboard::table::nbColumn', 3);
           $virtual->setDisplay('layout::dashboard::table::nbLine', 1);
-          
+
           $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
           $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
 
@@ -532,6 +537,8 @@ class ImactPlugin extends eqLogic
           $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
           $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
 
+          $virtual->save();
+
 
         } else {
           $voletProp = new voletProp();
@@ -543,7 +550,9 @@ class ImactPlugin extends eqLogic
           $voletProp->setConfiguration('cmdUp', '#' . $volet['cmdOpen'] . '#');
           $voletProp->setConfiguration('cmdStop', '#' . $volet['cmdStop'] . '#');
           $voletProp->setConfiguration('cmdDown', '#' . $volet['cmdClose'] . '#');
+          $voletProp->setConfiguration('jeedomState',1);
           $voletProp->save();
+
           $voletProp->setDisplay('layout::dashboard', 'table');
           $voletProp->setDisplay('layout::dashboard::table::nbColumn', 3);
           $voletProp->setDisplay('layout::dashboard::table::nbLine', 1);
@@ -567,7 +576,7 @@ class ImactPlugin extends eqLogic
           $voletUp->save();
 
           $voletPosition = $voletProp->getCmd('action', 'position');
-          $voletPosition->setDisplay('showNameOndashboard',0);
+          $voletPosition->setDisplay('showNameOndashboard', 0);
           $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
           $voletPosition->save();
 
@@ -575,7 +584,7 @@ class ImactPlugin extends eqLogic
           $hauteur->setIsVisible(1);
           $hauteur->setDisplay('showStatsOndashboard', 1);
           $hauteur->setDisplay('showStatsOnmobile', 1);
-          $hauteur->setDisplay('showNameOndashboard',0);
+          $hauteur->setDisplay('showNameOndashboard', 0);
           $hauteur->setTemplate('dashboard', 'custom::VOLET');
           $hauteur->save();
 

@@ -44,7 +44,6 @@ function addChampLED(selectorNbLed) {
   let nb_led = document.querySelector(selectorNbLed).value;
   if (nb_led <= 0) {
     alert("Saisissez au moins 1 LED");
-    // document.getElementById('led_number').classList.add()
   } else {
     document.getElementById('btn_valider').style.display = 'block';
     let container = document.querySelector("#led_array");
@@ -61,7 +60,6 @@ function addChampLED(selectorNbLed) {
       html += "<td>";
       html += "<div class='input-group'>";
 
-      // IMPORTANT : ajout d'un id correspondant au data-input
       html += "<input type='text' " +
         "class='form-control eqLogicAttr led-equipment' " +
         "data-l1key='equipment_" + i + "' " +
@@ -91,8 +89,8 @@ function addChampLED(selectorNbLed) {
 
         if (result) {
           $('#' + inputId)
-            .val(result.human)                 // ✅ on stocke l'ID
-            .attr('data-eqlogic-id', result.id) // facultatif
+            .val(result.human)
+            .attr('data-eqlogic-id', result.id)
             .trigger('change');
 
           // On affiche le nom lisible
@@ -107,38 +105,46 @@ function addChampLED(selectorNbLed) {
   }
 }
 
-function addLED() {
+async function addLED() {
   let leds = [];
-  let rows = document.querySelectorAll("#led_array tbody tr");
-  rows.forEach((row) => {
-    let inputEquipement = row.querySelector(".led-equipment")
-    leds.push({
-      idEquipement: inputEquipement.getAttribute('data-eqlogic-id')
-    });
-  });
+  nbLed = document.querySelector('#LED_number').value
+  let success = 0
 
-  fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      action: "addLEDS",
-      leds: JSON.stringify(leds),
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.state === "ok") {
-        alert(leds.length + " LED(s) créée(s) avec succès test");
-        document.querySelector("#md_modal").style.display = "none";
-        location.reload();
-      } else {
-        alert(data.result);
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur:", error);
-      alert("Erreur lors de la création");
+  for (let i = 1; i <= nbLed; i++) {
+    let eclairage = document.getElementById('equipment_' + i).getAttribute('data-eqlogic-id')
+    console.log(eclairage);
+
+    leds.push({
+      idEquipement: eclairage,
     });
+  }
+  for (const led of leds) {
+    try {
+      const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "addLEDS",
+          leds: JSON.stringify(led),
+        }),
+      })
+      const data = await response.json()
+      if (data.state === "ok") {
+        success++;
+        jeedomUtils.showAlert({ message: `${success}/${leds.length} créé(s)...`, level: 'success' });
+      } else {
+        // jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
+        alert('erreur')
+      }
+    } catch (error) {
+      // jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat}`, level: 'danger' });
+      alert(error)
+    }
+  }
+  if (success != 0) {
+    jeedomUtils.showAlert({ message: `${success}/${leds.length} éclairage(s) créé(s)`, level: 'success' });
+    location.reload();
+  }
 }
 
 async function addThermostat() {
@@ -162,7 +168,7 @@ async function addThermostat() {
     let commandeChauffer = document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeArreter = document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeConsigne = document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null
-    let consigneZone = document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440 // 8 sur la template
+    let consigneZone = document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440 // 8 sur la template | 440 au bureau
 
 
     thermostats.push({
@@ -361,6 +367,7 @@ function addChampVolet() {
   }
 
   document.getElementById('btn_valider').style.display = 'block';
+  document.getElementById('btn_cocherDecocher').style.display = 'block';
   let container = document.querySelector("#volet_array");
   let html = '<table class="table table-bordered">';
   html += "<thead><tr>";
@@ -381,7 +388,7 @@ function addChampVolet() {
     html += "<input type='text' class='form-control eqLogicAttr equipement_volet' data-l1key='volet_" + i + "' id='volet_" + i + "' placeholder='Sélectionner un équipement' readonly>";
     html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectEqLogic' data-input='volet_" + i + "' data-index='" + i + "'><i class='fas fa-list-alt'></i></a></span>";
     html += "</div></td>";
-    html += "<td><input type='checkbox' data-l1key='etatRetour_" + i + "' id='etatRetour_" + i + "' checked></td>";
+    html += "<td><input type='checkbox' style='width:30px; height:20px; cursor:pointer; data-l1key='etatRetour_" + i + "' id='etatRetour_" + i + "' checked ></td>";
     html += "</tr>";
     html += "</tbody>";
 
@@ -436,20 +443,20 @@ function addChampVolet() {
       const extraTbody = document.querySelector('#extra_volet_' + index);
 
       // Vérifie si RFXCOM
-      fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ action: 'isWithoutLogicalId', id: result.id })
-      })
-        .then(response => response.json())
-        .then(data => {
-          const isRfxcom = data.state === 'ok' && data.result === true;
-          extraTbody.style.display = isRfxcom ? 'table-row-group' : 'none';
+      // fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      //   body: new URLSearchParams({ action: 'isWithoutLogicalId', id: result.id })
+      // })
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     const isRfxcom = data.state === 'ok' && data.result === true;
+      //     extraTbody.style.display = isRfxcom ? 'table-row-group' : 'none';
 
-          // Stocke si c'est RFXCOM sur l'input pour le listener etatRetour
-          document.querySelector('#volet_' + index)?.setAttribute('data-is-rfxcom', isRfxcom);
-        })
-        .catch(error => console.error('Erreur isWithoutLogicalId:', error));
+      //     // Stocke si c'est RFXCOM sur l'input pour le listener etatRetour
+      //     // document.querySelector('#volet_' + index)?.setAttribute('data-is-rfxcom', isRfxcom);
+      //   })
+      //   .catch(error => console.error('Erreur isWithoutLogicalId:', error));
 
       // Récupère les commandes
       fetch('plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php', {
@@ -482,17 +489,26 @@ function addChampVolet() {
   document.addEventListener('change', function (e) {
     if (e.target.id?.startsWith('etatRetour_')) {
       const index = e.target.id.split('_')[1];
-      const isRfxcom = document.querySelector('#volet_' + index)?.getAttribute('data-is-rfxcom') === 'true';
+      // const isRfxcom = document.querySelector('#volet_' + index)?.getAttribute('data-is-rfxcom') === 'true';
       const extraVolet = document.querySelector('#extra_volet_' + index);
 
-      if (isRfxcom && extraVolet) {
-        // Affiche si coché, masque si décoché
-        extraVolet.style.display = e.target.checked ? 'table-row-group' : 'none';
+      if (/**isRfxcom &&**/  extraVolet) {
+        extraVolet.style.display = e.target.checked ? 'none' : 'table-row-group'; // ← inversé
       } else {
         verifyVoletProp();
       }
     }
   });
+}
+
+function cocherDecocher() {
+  nbVolet = document.querySelector('#volet_number').value
+  for (let i = 1; i <= nbVolet; i++) {
+    let checkbox = document.querySelector('#etatRetour_' + i);
+    if (checkbox) checkbox.checked = !checkbox.checked;
+  }
+
+  verifyVoletProp();
 }
 
 function verifyVoletProp() {
@@ -501,9 +517,9 @@ function verifyVoletProp() {
   for (let i = 1; i <= nbVolet; i++) {
     let checkbox = document.querySelector('#etatRetour_' + i);
     let extraTbody = document.querySelector('#extra_volet_' + i);
-    const isRfxcom = document.querySelector('#volet_' + i)?.getAttribute('data-is-rfxcom') === 'true';
+    // const isRfxcom = document.querySelector('#volet_' + i)?.getAttribute('data-is-rfxcom') === 'true';
 
-    if (isRfxcom || (checkbox && !checkbox.checked)) {
+    if (/**isRfxcom || **/(checkbox && !checkbox.checked)) {
       isVoletProp = true;
       extraTbody.style.display = 'table-row-group';
     } else {
@@ -517,6 +533,9 @@ function verifyVoletProp() {
 
 async function addVolet() {
   const btn = document.querySelector('#btn_valider button')
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = 'Création en cours..';
   nbVolet = document.querySelector('#volet_number').value;
   const volets = []
   const voletsInvalides = []
@@ -563,6 +582,8 @@ async function addVolet() {
     console.log(volets)
   }
   if (voletsInvalides.length > 0) {
+    btn.disabled = false
+    btn.textContent = 'Valider'
     const erreurs = voletsInvalides.map(t => `Volet n°${t.numeroVolet} : ${t.erreur}`)
     jeedomUtils.showAlert({
       message: erreurs.join('<br> '),

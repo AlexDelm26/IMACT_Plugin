@@ -14,6 +14,10 @@ if (!isConnect('admin')) {
         <button class="btn btn-success" onclick="addChampVolet()">{{Valider Nombre}}</button>
     </div>
 
+    <div style="text-align: end; margin-top: 20px; display:none;" id="btn_cocherDecocher">
+        <button class="btn btn-primary" onclick="cocherDecocher()">{{Cocher/Décocher}}</button>
+    </div>
+
     <div id="volet_array" style="margin-top: 30px;"></div>
 
     <div style="text-align: center; margin-top: 20px; display:none;" id="btn_valider">

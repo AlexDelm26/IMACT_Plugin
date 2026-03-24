@@ -63,7 +63,7 @@ try {
     }
 
     log::add('ImactPlugin', 'debug', 'Appel de createVirtualLEDs...');
-    $ledCreated = ImactPlugin::createVirtualLEDs($leds);
+    $ledCreated = ImactPlugin::createVirtualLEDs([$leds]);
 
     log::add('ImactPlugin', 'debug', 'LEDs créées: ' . $ledCreated);
 
