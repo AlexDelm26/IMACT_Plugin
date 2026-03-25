@@ -41,6 +41,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 				<span>{{Ajouter Volet}}</span>
 			</div>
+			<div class="cursor logoPrimary" id="btn_add_AUTOMATE">
+				<i class="fas fa-plus-circle"></i>
+				<br>
+
+				<span class="text-info">{{Ajouter Automate}}</span>
+			</div>
 
 		</div>
 		<legend> {{Version 1.5.1 | 24/03/2026}}</legend>
