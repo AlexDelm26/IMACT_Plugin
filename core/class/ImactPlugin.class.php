@@ -388,7 +388,7 @@ class ImactPlugin extends eqLogic
           'position' => 'position',
         ],
       ],
-      'SomfyUnified' => [
+      'rfxcom' => [
         'action' => [
           'ouvrir' => 'open',
           'fermer' => 'close',
@@ -510,7 +510,7 @@ class ImactPlugin extends eqLogic
           $hauteur->setDisplay('showStatsOndashboard', 1);
           $hauteur->setDisplay('showStatsOnmobile', 1);
           $hauteur->setDisplay('showNameOndashboard', 0);
-          $hauteur->setTemplate('dashboard', 'custom::VOLET');
+          $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
           $hauteur->save();
 
 
@@ -585,7 +585,7 @@ class ImactPlugin extends eqLogic
           $hauteur->setDisplay('showStatsOndashboard', 1);
           $hauteur->setDisplay('showStatsOnmobile', 1);
           $hauteur->setDisplay('showNameOndashboard', 0);
-          $hauteur->setTemplate('dashboard', 'custom::VOLET');
+          $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
           $hauteur->save();
 
           $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
