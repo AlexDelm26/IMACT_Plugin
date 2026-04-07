@@ -367,7 +367,7 @@ class ImactPlugin extends eqLogic
 
     return $duplicateName;
   }
- 
+
   public static function verifyVoletPropExist()
   {
     $plugin = plugin::byId('voletProp');
@@ -550,7 +550,7 @@ class ImactPlugin extends eqLogic
           $voletProp->setConfiguration('cmdUp', '#' . $volet['cmdOpen'] . '#');
           $voletProp->setConfiguration('cmdStop', '#' . $volet['cmdStop'] . '#');
           $voletProp->setConfiguration('cmdDown', '#' . $volet['cmdClose'] . '#');
-          $voletProp->setConfiguration('jeedomState',1);
+          $voletProp->setConfiguration('jeedomState', 1);
           $voletProp->save();
 
           $voletProp->setDisplay('layout::dashboard', 'table');
@@ -636,5 +636,48 @@ class ImactPlugin extends eqLogic
     }
     return ($plugin == 'rfxcomm') ? true : false;
   }
+
+  public static function convertAutomate($automate)
+  {
+
+    $equipementSource = eqLogic::byId($automate['equipementSource']);
+    log::add('ImactPlugin', 'debug', var_export($automate, true));
+    $commandesCrees=0;
+
+    $cmds = $equipementSource->getCmd();
+    if ($automate['copierAllCommandes']) {
+      foreach ($cmds as $cmd) {
+        if(cmd::byEqLogicIdCmdName($automate['equipementCible'],$cmd->getName())){
+          continue;
+        }
+        $newCommande = clone cmd::byId($cmd->getId());
+        $newCommande->setId('');
+        $newCommande->setEqLogic_id($automate['equipementCible']);
+        $newCommande->save();
+      }
+    } else {
+      foreach ($cmds as $cmd) {
+        if (strpos($cmd->getName(), $automate['commandesContenant']) !== false) {
+          if (cmd::byEqLogicIdCmdName($automate['equipementCible'], $cmd->getName())) {
+            continue;
+          }
+          if (
+            (!empty($automate['exclureCommandes1'] && strpos($cmd->getName(), $automate['exclureCommandes1']) !== false)) ||
+            (!empty($automate['exclureCommandes2'] && strpos($cmd->getName(), $automate['exclureCommandes2']) !== false)) ||
+            (!empty($automate['exclureCommandes3'] && strpos($cmd->getName(), $automate['exclureCommandes3']) !== false))
+          ) {
+            continue;
+          }
+          $newCommande = clone cmd::byId($cmd->getId());
+          $newCommande->setId('');
+          $newCommande->setEqLogic_id($automate['equipementCible']);
+          $newCommande->save();
+          $commandesCrees++;
+        }
+      }
+    }
+    return $commandesCrees;
+  }
+  
 }
 

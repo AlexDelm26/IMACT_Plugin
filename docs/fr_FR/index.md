@@ -1,18 +1,39 @@
-# Plugin template
+# ImactPlugin
 
-Ce "template de plugin" sert de base à la réalisation de plugins pour **Jeedom**.
+Bienvenue sur la documentation du notre plugin **ImactPlugin** !
 
-La documentation générale relative à la conception de plugin est consultable [ici](https://doc.jeedom.com/fr_FR/dev/).
+Vous trouverez ici l'utilisation de notre plugin.
 
-Dans le détail :   
-* [Utilisation du template de plugin](https://doc.jeedom.com/fr_FR/dev/plugin_template) : Le template de plugin est une base de plugin pour Jeedom qui doit être adaptée avec l'id de votre plugin et à laquelle il suffit d'ajouter vos propres fonctions.
+## Description : 
 
-* [Fichier info.json](https://doc.jeedom.com/fr_FR/dev/structure_info_json) : Intégré depuis la version 3.0 de Jeedom, le fichier **info.json** est obligatoire pour le bon fonctionnement des plugins et leur bon déploiement sur le Market Jeedom.
+Ce plugin permet d'accélérer le processus de déploiement côté Jeedom.  
 
-* [Icône du plugin](https://doc.jeedom.com/fr_FR/dev/Icone_de_plugin) : Afin de pouvoir être publié sur le Market Jeedom, tout plugin doit disposer d’une icône. Attention à ne pas utiliser le même code couleur que les icônes des plugins Jeedom officiels.
 
-* [Widget du plugin](https://doc.jeedom.com/fr_FR/dev/widget_plugin) : Présentation des différentes manières d'inclure des widgets personnalisés au plugin.
+## Fonctionnalités :   
+* **Ajouter Éclairage** :  
+*Créer un virtuel pour un éclairage avec les commandes state, on et off automatiquement*  
+  Sélectionner un nombre d'éclairage à créer, puis valider le nombre. Et enfin, sélectionner votre équipement Zigbee.
 
-* [Documentation du plugin](https://doc.jeedom.com/fr_FR/dev/documentation_plugin) : Présentation de la mise en place d'une documentation car un bon plugin n'est rien sans documentation adéquate.
 
-* [Publication du plugin](https://doc.jeedom.com/fr_FR/dev/publication_plugin) : Description des pré-requis indispensables à la publication du plugin.
+* **Ajouter Thermostat** :  
+*Créer un virtuel pour un thermostat avec les valeurs, la température extérieure, et les modes (Boost, Confort, Eco, Absent, Hors-Gel) automatiquement*  
+Sélectionner un nombre de thermostat à créer, puis valider le nombre. Renseignez un nom pour votre thermostat, et une température intérieure.  
+Les commandes actions et la commande personnelle sont facultatives.  
+S'il y a plusieurs zones, sélectionner une zone, si vide : par défaut
+
+
+* **Ajouter Volet**  
+*Créer un volet virtuel ou proportionnel selon le retour d'état*  
+Sélectionner un nombre de thermostat à créer, puis valider le nombre.  
+Renseigner l'équipement que vous voulez créer.  
+Décocher la case si il n'y a pas de retour d'état  
+**__Attention au retour d'état :__**  
+**Sans retour d'état :** Somfy RTS  
+**Avec retour d'état :** Somfy IO, Zigbee
+
+* **Ajouter Automate**  
+*Copier mes commandes de l'automate vers un virtuel*  
+Sélectionner un équipement source (l'automate) et un équipement cible (le virtuel)  
+Si vous souhaitez copier toutes les commandes, cochez la case.  
+Sinon complétez le filtre. **Commandes contenant uniquement** obligatoire
+

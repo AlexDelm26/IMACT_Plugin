@@ -54,7 +54,7 @@
   "changelog_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta/changelog",
   "changelog": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/changelog",
   "documentation_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta",
-  "documentation": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin",
+  "documentation": "https://github.com/phongcroissant/ImactPlugin/blob/main/docs/fr_FR/index.md",
   "link": {
     "forum": "Lien vers le forum",
     "video": "Lien vers une video"

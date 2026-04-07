@@ -101,6 +101,8 @@ try {
   }
   if (init('action') == 'addVOLET') {
     $volet = json_decode(init('volet'), true);
+        log::add('ImactPlugin','debug',var_export($volet,true));
+
     ImactPlugin::createVolet([$volet]);
     ajax::success('ok');
     exit;
@@ -108,6 +110,10 @@ try {
   if (init('action') == 'isWithoutLogicalId') {
     $idEqLogic = init('id');
     ajax::success(ImactPlugin::verifyIsWithoutLogicalId($idEqLogic));
+  }
+  if(init('action')=='convertAutomate'){
+    $automate=json_decode(init('automate'),true);
+    ajax::success(ImactPlugin::convertAutomate($automate));
   }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));

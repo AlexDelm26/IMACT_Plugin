@@ -90,22 +90,17 @@ if (!isConnect('admin')) {
 </div>
 <script>
     $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
-
         var inputId = $(this).data('input');
+        var index = $(this).data('index');
 
         jeedom.eqLogic.getSelectModal({}, function (result) {
+            if (!result) return;
 
-            if (result) {
-                $('#' + inputId)
-                    .val(result.human)
-                    .attr('data-eqlogic-id', result.id)
-                    .trigger('change');
+            $('#' + inputId)
+                .val(result.human)
+                .attr('data-eqlogic-id', result.id);
 
-                // On affiche le nom lisible
-                $('#' + inputId).val(result.human);
-            }
-
+            const extraTbody = document.querySelector('#extra_volet_' + index);
         });
-
     });
 </script>

@@ -642,56 +642,65 @@ document.addEventListener('change', function (e) {
     }
   }
 });
-async function copyCommandes(){
-  const automate=[];
-  let equipementSource=document.getElementById('equipementSource').getAttribute('data-eqlogic-id')
-  let equipementCible=document.getElementById('equipementCible').getAttribute('data-eqlogic-id')
-  let copierAllCommandes=document.getElementById('copierAllCommandes').checked
-  let commandesContenant=document.getElementById('commandesContenant').value
-    let exclureCommandes1=document.getElementById('exclureCommande1').value
-    let exclureCommandes2=document.getElementById('exclureCommande2').value
-    let exclureCommandes3=document.getElementById('exclureCommande3').value
-  if (!equipementSource){
+async function copyCommandes() {
+  
+  let equipementSource = document.getElementById('equipementSource').getAttribute('data-eqlogic-id')
+  
+  let equipementCible = document.getElementById('equipementCible').getAttribute('data-eqlogic-id')
+  let copierAllCommandes = document.getElementById('copierAllCommandes').checked
+  let commandesContenant = document.getElementById('commandesContenant').value
+  let exclureCommandes1 = document.getElementById('exclureCommande1').value
+  let exclureCommandes2 = document.getElementById('exclureCommande2').value
+  let exclureCommandes3 = document.getElementById('exclureCommande3').value
+  if (!equipementSource) {
     jeedomUtils.showAlert({
-      message:'Veuillez sélectionner un équipement source',
-      level:'danger'
+      message: 'Veuillez sélectionner un équipement source',
+      level: 'danger'
     })
   }
 
-  if (!equipementCible){
+  if (!equipementCible) {
     jeedomUtils.showAlert({
-      message:'Veuillez sélectionner un équipement cible',
-      level:'danger'
+      message: 'Veuillez sélectionner un équipement cible',
+      level: 'danger'
     })
   }
-  automate.push({
-    equipementSource:equipementSource,
-    equipementCible:equipementCible,
-    copierAllCommandes:copierAllCommandes,
-    ...(!copierAllCommandes && {commandesContenant:commandesContenant, exclureCommandes1:exclureCommandes1, exclureCommandes2:exclureCommandes2, exclureCommandes3:exclureCommandes3})
-  })
+
+  if (!copierAllCommandes) {
+    if (!commandesContenant) {
+      jeedomUtils.showAlert({
+        message: 'Veuillez saisir un mot',
+        level: 'danger'
+      })
+    }
+  }
+  const automate = {
+    equipementSource: equipementSource,
+    equipementCible: equipementCible,
+    copierAllCommandes: copierAllCommandes,
+    ...(!copierAllCommandes && { commandesContenant: commandesContenant, exclureCommandes1: exclureCommandes1, exclureCommandes2: exclureCommandes2, exclureCommandes3: exclureCommandes3 })
+  }
   console.log(automate);
   
-  // try {
-  //     const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  //       body: new URLSearchParams({
-  //         action: "addVOLET",
-  //         volet: JSON.stringify(volet)
-  //       }),
-  //     });
-  //     const data = await response.json();
-  //     if (data.state === "ok") {
-  //       success++;
-  //       jeedomUtils.showAlert({ message: `${success}/${volets.length} créé(s)...`, level: 'success' });
-  //     } else {
-  //       jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
-  //     }
-  //   } catch (error) {
-  //     jeedomUtils.showAlert({ message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger' });
-  //   }
-  
+  try {
+    const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "convertAutomate",
+        automate: JSON.stringify(automate)
+      }),
+    });
+    const data = await response.json();
+    if (data.state === "ok") {
+      jeedomUtils.showAlert({ /**message: `${success}/${volets.length} créé(s)...`, level: 'success' **/ });
+    } else {
+      jeedomUtils.showAlert({ /**message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' **/ }); // catch l'erreur si doublon dans la DB
+    }
+  } catch (error) {
+    jeedomUtils.showAlert({ /**message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger'**/ });
+  }
+
 }
 
 
