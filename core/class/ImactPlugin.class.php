@@ -425,7 +425,7 @@ class ImactPlugin extends eqLogic
           $virtual->setEqType_name('virtual');
           $virtual->setIsEnable(1);
           $virtual->setIsVisible(1);
-          $virtual->setObject_id(null); // 10 sur la template
+          $virtual->setObject_id(10); // 10 sur la template
           $virtual->save();
 
           $cmdEtatPosition = new virtualCmd();
@@ -543,7 +543,7 @@ class ImactPlugin extends eqLogic
         } else {
           $voletProp = new voletProp();
           $voletProp->setName($nomComplet[1]);
-          $voletProp->setObject_id(null); // 10 sur la template
+          $voletProp->setObject_id(10); // 10 sur la template
           $voletProp->setEqType_name('voletProp');
           $voletProp->setIsEnable(1);
           $voletProp->setIsVisible(1);
@@ -605,18 +605,6 @@ class ImactPlugin extends eqLogic
 
           $voletProp->save();
           log::add('ImactPlugin', 'debug', 'display : ' . json_encode($voletProp->getDisplay()));
-
-          $hauteur = $voletProp->getCmd('info', 'hauteur');
-          $key = 'layout::dashboard::table::cmd::' . $hauteur->getId() . '::line';
-          log::add('ImactPlugin', 'debug', 'clé hauteur : ' . $key);
-
-          // Comparer avec une qui fonctionne
-          $voletUp = $voletProp->getCmd('action', 'up');
-          $keyUp = 'layout::dashboard::table::cmd::' . $voletUp->getId() . '::line';
-          log::add('ImactPlugin', 'debug', 'clé up : ' . $keyUp);
-
-          $reload = eqLogic::byId($voletProp->getId());
-          log::add('ImactPlugin', 'debug', 'display complet : ' . json_encode($reload->getDisplay()));
 
         }
       }
