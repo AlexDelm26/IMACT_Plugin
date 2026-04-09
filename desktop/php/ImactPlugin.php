@@ -49,7 +49,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			</div>
 
 		</div>
-		<legend> {{Version 1.6.0 | 07/04/2026}}</legend>
+		<legend> {{Version 1.7.0 | 09/04/2026}}</legend>
 		<!-- <legend><i class="fas fa-table"></i> {{Mes templates}}</legend> -->
 		<?php
 		// if (count($eqLogics) == 0) {
