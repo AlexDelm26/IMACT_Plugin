@@ -425,67 +425,18 @@ class ImactPlugin extends eqLogic
           $virtual->setEqType_name('virtual');
           $virtual->setIsEnable(1);
           $virtual->setIsVisible(1);
-          $virtual->setObject_id(10); // 10 sur la template
+          $virtual->setObject_id(($eqLogic->getEqType_name() == 'virtual') ? null : 10); // 10 sur la template
           $virtual->save();
 
-          $cmdEtatPosition = new virtualCmd();
-          $cmdEtatPosition->setName('Etat Position');
-          $cmdEtatPosition->setEqLogic_id($virtual->getId());
-          $cmdEtatPosition->setLogicalId('etatPosition');
-          $cmdEtatPosition->setType('info');
-          $cmdEtatPosition->setSubType('numeric');
-          $cmdEtatPosition->setConfiguration('calcul', '#' . $cmds['position']->getId() . '#');
-          $cmdEtatPosition->setUnite('%');
-          $cmdEtatPosition->save();
+          self::createCommandVolet('etat position', $virtual->getId(), $cmds['position']->getId());
 
-          $cmdOuvrir = new virtualCmd();
-          $cmdOuvrir->setName('Ouvrir');
-          $cmdOuvrir->setEqLogic_id($virtual->getId());
-          $cmdOuvrir->setLogicalId('ouvrir');
-          $cmdOuvrir->setType('action');
-          $cmdOuvrir->setSubType('other');
-          $cmdOuvrir->setConfiguration('virtualAction', '1');
-          $cmdOuvrir->setConfiguration('infoName', '#' . $cmds['ouvrir']->getId() . '#');
-          $cmdOuvrir->setDisplay('showNameOndashboard', '0');
-          $cmdOuvrir->setDisplay('showNameOnmobile', '0');
-          $cmdOuvrir->save();
+          self::createCommandVolet('ouvrir', $virtual->getId(), $cmds['ouvrir']->getId());
 
-          $cmdFermer = new virtualCmd();
-          $cmdFermer->setName('Fermer');
-          $cmdFermer->setEqLogic_id($virtual->getId());
-          $cmdFermer->setLogicalId('fermer');
-          $cmdFermer->setType('action');
-          $cmdFermer->setSubType('other');
-          $cmdFermer->setConfiguration('virtualAction', '1');
-          $cmdFermer->setConfiguration('infoName', '#' . $cmds['fermer']->getId() . '#');
-          $cmdFermer->setDisplay('showNameOndashboard', '0');
-          $cmdFermer->setDisplay('showNameOnmobile', '0');
-          $cmdFermer->save();
+          self::createCommandVolet('fermer', $virtual->getId(), $cmds['fermer']->getId());
 
-          $cmdStop = new virtualCmd();
-          $cmdStop->setName('Stop');
-          $cmdStop->setEqLogic_id($virtual->getId());
-          $cmdStop->setLogicalId('stop');
-          $cmdStop->setType('action');
-          $cmdStop->setSubType('other');
-          $cmdStop->setConfiguration('virtualAction', '1');
-          $cmdStop->setConfiguration('infoName', '#' . $cmds['stop']->getId() . '#');
-          $cmdStop->setDisplay('showNameOndashboard', '0');
-          $cmdStop->setDisplay('showNameOnmobile', '0');
-          $cmdStop->save();
+          self::createCommandVolet('stop', $virtual->getId(), $cmds['stop']->getId());
 
-          $cmdPosition = new virtualCmd();
-          $cmdPosition->setName('Position');
-          $cmdPosition->setEqLogic_id($virtual->getId());
-          $cmdPosition->setLogicalId('position');
-          $cmdPosition->setType('action');
-          $cmdPosition->setSubType('slider');
-          $cmdPosition->setValue($cmdEtatPosition->getId());
-          $cmdPosition->setConfiguration('virtualAction', '1');
-          $cmdPosition->setConfiguration('infoName', '#' . $cmds['slider']->getId() . '#');
-          $cmdPosition->setDisplay('showNameOndashboard', '0');
-          $cmdPosition->setDisplay('showNameOnmobile', '0');
-          $cmdPosition->save();
+          self::createCommandVolet('position', $virtual->getId(), $cmds['slider']->getId());
 
           $voletUp = $virtual->getCmd('action', 'ouvrir');
           $voletUp->setOrder(1);
@@ -543,7 +494,7 @@ class ImactPlugin extends eqLogic
         } else {
           $voletProp = new voletProp();
           $voletProp->setName($nomComplet[1]);
-          $voletProp->setObject_id(10); // 10 sur la template
+          $voletProp->setObject_id(($plugin == 'virtual') ? null : 10); // 10 sur la template | au bureau : null pour les tests
           $voletProp->setEqType_name('voletProp');
           $voletProp->setIsEnable(1);
           $voletProp->setIsVisible(1);
@@ -613,6 +564,24 @@ class ImactPlugin extends eqLogic
       throw $th;
     }
 
+  }
+  public static function createCommandVolet($libelle, $virtual, $commande)
+  {
+    $cmdStop = new virtualCmd();
+    $cmdStop->setName(($libelle == 'etat position') ? ucwords($libelle) : ucfirst($libelle));
+    $cmdStop->setEqLogic_id($virtual);
+    $cmdStop->setLogicalId(($libelle == 'etat position')?'etatPosition':$libelle);
+    $cmdStop->setType(($libelle == 'etat position') ? 'info' : 'action');
+    $cmdStop->setSubType(($libelle == 'etat position') ? 'numeric' : 'other');
+    $cmdStop->setConfiguration(($libelle == 'etat position') ? 'calcul' : 'infoName', '#' . $commande . '#');
+    if ($libelle == 'etat position') {
+      $cmdStop->setUnite('%');
+    } else {
+      $cmdStop->setConfiguration('virtualAction', '1');
+    }
+    $cmdStop->setDisplay('showNameOndashboard', '0');
+    $cmdStop->setDisplay('showNameOnmobile', '0');
+    $cmdStop->save();
   }
   public static function verifyIsWithoutLogicalId($id)
   {
