@@ -625,47 +625,80 @@ class ImactPlugin extends eqLogic
     return ($plugin == 'rfxcomm') ? true : false;
   }
 
-  public static function convertAutomate($automate)
+  public static function copyAllCommands($cmds, $equipementCible, $commandeType, $exclureCommandes1, $exclureCommandes2, $exclureCommandes3, $includeCommandes)
   {
+    $commandesCrees = 0;
 
-    $equipementSource = eqLogic::byId($automate['equipementSource']);
-    log::add('ImactPlugin', 'debug', var_export($automate, true));
-    $commandesCrees=0;
+    log::add('scenario', 'debug', $exclureCommandes1);
+    log::add('scenario', 'debug', $exclureCommandes2);
+    log::add('scenario', 'debug', $exclureCommandes3);
+    log::add('scenario', 'debug', 'include :' . $includeCommandes);
 
-    $cmds = $equipementSource->getCmd();
-    if ($automate['copierAllCommandes']) {
-      foreach ($cmds as $cmd) {
-        if(cmd::byEqLogicIdCmdName($automate['equipementCible'],$cmd->getName())){
-          continue;
-        }
-        $newCommande = clone cmd::byId($cmd->getId());
-        $newCommande->setId('');
-        $newCommande->setEqLogic_id($automate['equipementCible']);
-        $newCommande->save();
+
+
+    foreach ($cmds as $cmd) {
+      $oldCmdAction = cmd::byId($cmd->getValue());
+      if (empty($includeCommandes) || strpos($cmd->getName(), $includeCommandes) !== false) {
+        log::add('scenario', 'debug', $cmd->getName());
       }
-    } else {
-      foreach ($cmds as $cmd) {
-        if (strpos($cmd->getName(), $automate['commandesContenant']) !== false) {
-          if (cmd::byEqLogicIdCmdName($automate['equipementCible'], $cmd->getName())) {
-            continue;
-          }
+
+
+
+      if (!cmd::byEqLogicIdCmdName($equipementCible, $cmd->getName())) {
+        if (empty($includeCommandes) || strpos($cmd->getName(), $includeCommandes) !== false) {
           if (
-            (!empty($automate['exclureCommandes1'] && strpos($cmd->getName(), $automate['exclureCommandes1']) !== false)) ||
-            (!empty($automate['exclureCommandes2'] && strpos($cmd->getName(), $automate['exclureCommandes2']) !== false)) ||
-            (!empty($automate['exclureCommandes3'] && strpos($cmd->getName(), $automate['exclureCommandes3']) !== false))
+            (empty($exclureCommandes1) || strpos($cmd->getName(), $exclureCommandes1) === false) &&
+            (empty($exclureCommandes2) || strpos($cmd->getName(), $exclureCommandes2) === false) &&
+            (empty($exclureCommandes3) || strpos($cmd->getName(), $exclureCommandes3) === false)
           ) {
-            continue;
+            log::add('scenario', 'debug', 'Commande créée');
+
+            $newCommande = clone cmd::byId($cmd->getId());
+            $newCommande->setId('');
+            if ($commandeType == 'calcul') {
+              $newCommande->setConfiguration('calcul', '#' . $cmd->getId() . '#');
+            } else {
+              $newCommande->setConfiguration('infoName', '#' . $cmd->getId() . '#');
+              $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
+
+            }
+            $newCommande->setEqLogic_id($equipementCible);
+            $newCommande->save();
+            $commandesCrees++;
           }
-          $newCommande = clone cmd::byId($cmd->getId());
-          $newCommande->setId('');
-          $newCommande->setEqLogic_id($automate['equipementCible']);
-          $newCommande->save();
-          $commandesCrees++;
         }
       }
     }
     return $commandesCrees;
   }
-  
+
+  public static function convertAutomate($automate)
+  {
+
+    $equipementSource = eqLogic::byId($automate['equipementSource']);
+    log::add('ImactPlugin', 'debug', var_export($automate, true));
+    $commandesCrees = 0;
+
+    $actionCmds = $equipementSource->getCmd('action', null);
+    $infoCmds = $equipementSource->getCmd('info', null);
+
+    if ($automate['copierAllCommandes']) {
+      // Copie les commandes infos d'abord
+      $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', '', '', '', '');
+
+      // Copie les commandes actions
+      $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', '', '', '', '');
+
+    } else {
+      // Copie les commandes infos d'abord
+      $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
+
+      // Copie les commandes actions
+      $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
+
+    }
+    return $commandesCrees;
+  }
+
 }
 

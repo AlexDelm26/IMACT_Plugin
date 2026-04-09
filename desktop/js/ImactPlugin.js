@@ -568,7 +568,6 @@ async function addVolet() {
     let cmdClose = document.getElementById('cmd_close_' + i).value
     let cmdStop = document.getElementById('cmd_stop_' + i).value
     if (!idVolet) {
-      console.log('equipement vide');
       voletsInvalides.push({
         numeroVolet: i,
         erreur: 'Veuillez sélectionner un équipement'
@@ -692,13 +691,13 @@ async function copyCommandes() {
       }),
     });
     const data = await response.json();
+    console.log(data);
+    
     if (data.state === "ok") {
-      jeedomUtils.showAlert({ /**message: `${success}/${volets.length} créé(s)...`, level: 'success' **/ });
-    } else {
-      jeedomUtils.showAlert({ /**message: `Erreur volet n°${volet.numeroVolet} : ${data.result}`, level: 'danger' **/ }); // catch l'erreur si doublon dans la DB
+      jeedomUtils.showAlert({ message: `${data.result} commande(s) copiée(s)...`, level: 'success'  });
     }
   } catch (error) {
-    jeedomUtils.showAlert({ /**message: `Erreur volet n°${volet.numeroVolet}`, level: 'danger'**/ });
+    jeedomUtils.showAlert({ message: error, level: 'danger' });
   }
 
 }

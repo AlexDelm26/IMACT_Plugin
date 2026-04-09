@@ -30,8 +30,8 @@ try {
   */
   ajax::init();
 
-  log::add('ImactPlugin', 'debug', '=== AJAX appelé ===');
-  log::add('ImactPlugin', 'debug', 'Action: ' . init('action'));
+  // log::add('ImactPlugin', 'debug', '=== AJAX appelé ===');
+  // log::add('ImactPlugin', 'debug', 'Action: ' . init('action'));
   if (init('action') == 'log') {
     try {
       ImactPlugin::log();
