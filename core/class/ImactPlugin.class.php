@@ -112,6 +112,22 @@ class ImactPlugin extends eqLogic
       throw $e;
     }
   }
+  public static function createCommandLed($nom,$idVirtuel,$value,$commandeSource, $cmdInfo)
+  {
+    $cmd = new virtualCmd();
+    $cmd->setName('off');
+    $cmd->setEqLogic_id($idVirtuel);
+    $cmd->setType('action');
+    $cmd->setSubType('other');
+    $cmd->setValue($cmdInfo);
+    $cmd->setConfiguration('virtualAction', '1');
+    $cmd->setConfiguration('infoName', '#' . $commandeSource . '#');
+    $cmd->setDisplay('showNameOndashboard', '0');
+    $cmd->setDisplay('showNameOnmobile', '0');
+    $cmd->setTemplate('dashboard', 'custom::Lumière ON/OFF');
+    $cmd->setTemplate('mobile', 'custom::Lumière ON/OFF');
+    $cmd->save();
+  }
 
   public static function createThermostat($thermostats)
   {
@@ -230,13 +246,8 @@ class ImactPlugin extends eqLogic
         $cmd = $thermo->getCmd('info', 'mode');
         $cmd->setTemplate('dashboard', 'custom::Thermostat_statut_All');
         $cmd->save();
-        $widgetPath = __DIR__ . '/../../data/customTemplates/dashboard/cmd.info.string.Thermostat_statut_All.html';
-        $files = glob('/var/www/html/data/customTemplates/dashboard/cmd.info.string.*.html');
-        foreach ($files as $file) {
-          log::add('ImactPlugin', 'debug', basename($file));
-        }
-        log::add('ImactPlugin', 'debug', "Fichier widget existe : " . (file_exists($widgetPath) ? 'OUI' : 'NON') . "\n");
         $thermo->getCmd('info', 'mode')->setTemplate('dashboard', 'Thermostat_statut_All');
+
         $cmdOnOff = $thermo->getCmd('action', 'thermostat_mode');   // on/off
         $cmdOrder = $thermo->getCmd('action', 'order');             // consigne
         $cmdState = $thermo->getCmd('info', 'state');               // état chauffe
@@ -381,17 +392,17 @@ class ImactPlugin extends eqLogic
           $virtual->setObject_id(($eqLogic->getEqType_name() == 'virtual') ? null : 10); // 10 sur la template
           $virtual->save();
 
-          self::createCommandVolet('etat position','hauteur', $virtual->getId(), $cmds['position']->getId());
+          self::createCommandVolet('etat position', 'hauteur', $virtual->getId(), $cmds['position']->getId());
 
-          self::createCommandVolet('ouvrir','up', $virtual->getId(), $cmds['ouvrir']->getId());
+          self::createCommandVolet('ouvrir', 'up', $virtual->getId(), $cmds['ouvrir']->getId());
 
-          self::createCommandVolet('fermer','down', $virtual->getId(), $cmds['fermer']->getId());
+          self::createCommandVolet('fermer', 'down', $virtual->getId(), $cmds['fermer']->getId());
 
-          self::createCommandVolet('stop','stop', $virtual->getId(), $cmds['stop']->getId());
+          self::createCommandVolet('stop', 'stop', $virtual->getId(), $cmds['stop']->getId());
 
-          self::createCommandVolet('position','position', $virtual->getId(), $cmds['slider']->getId());
+          self::createCommandVolet('position', 'position', $virtual->getId(), $cmds['slider']->getId());
 
-          self::createVisuelVolet($virtual,$volet['etatRetour']);
+          self::createVisuelVolet($virtual, $volet['etatRetour']);
 
           // $voletUp = $virtual->getCmd('action', 'up');
           // $voletUp->setOrder(1);
@@ -459,7 +470,7 @@ class ImactPlugin extends eqLogic
           $voletProp->setConfiguration('jeedomState', 1);
           $voletProp->save();
 
-          self::createVisuelVolet($voletProp,$volet['etatRetour']);
+          self::createVisuelVolet($voletProp, $volet['etatRetour']);
 
           // $voletProp->setDisplay('layout::dashboard', 'table');
           // $voletProp->setDisplay('layout::dashboard::table::nbColumn', 3);
@@ -586,7 +597,7 @@ class ImactPlugin extends eqLogic
     $volet->save();
 
   }
-  public static function createCommandVolet($libelle,$logicalID, $virtual, $commande)
+  public static function createCommandVolet($libelle, $logicalID, $virtual, $commande)
   {
     $cmd = new virtualCmd();
     $cmd->setName(($libelle == 'etat position') ? ucwords($libelle) : ucfirst($libelle));
@@ -649,12 +660,17 @@ class ImactPlugin extends eqLogic
 
   public static function convertAutomate($automate)
   {
+    log::add('ImactPlugin','debug',var_export($automate,true));
+
 
     $equipementSource = eqLogic::byId($automate['equipementSource']);
     $commandesCrees = 0;
 
     $actionCmds = $equipementSource->getCmd('action', null);
     $infoCmds = $equipementSource->getCmd('info', null);
+    foreach($infoCmds as $infoCmd){
+      log::add('ImactPlugin','debug',$infoCmd->getName());
+    }
 
     if ($automate['copierAllCommandes']) {
       // Copie les commandes infos d'abord
