@@ -697,6 +697,7 @@ async function copyCommandes() {
       jeedomUtils.showAlert({ message: `${data.result} commande(s) copiée(s)...`, level: 'success'  });
     }
   } catch (error) {
+    console.log('je suis passé par là');
     jeedomUtils.showAlert({ message: error, level: 'danger' });
   }
 
