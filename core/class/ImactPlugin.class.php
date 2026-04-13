@@ -22,8 +22,6 @@ class ImactPlugin extends eqLogic
 {
   public static function createVirtualLEDs($leds)
   {
-    log::add('ImactPlugin', 'debug', '=== Début createVirtualLEDs ===');
-
     try {
       include_file('core', 'virtual', 'class', 'virtual');
 
@@ -104,7 +102,6 @@ class ImactPlugin extends eqLogic
         $cmdOff->save();
 
         $ledCreated++;
-        log::add('ImactPlugin', 'debug', 'LED créée: ' . $nom);
       }
 
       log::add('ImactPlugin', 'debug', 'Total LEDs créées: ' . $ledCreated);
@@ -118,12 +115,7 @@ class ImactPlugin extends eqLogic
 
   public static function createThermostat($thermostats)
   {
-    log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
     try {
-      // include_file('core', 'thermostat', 'class', 'thermostat');
-      // if (!class_exists('thermostat')) {
-      //   log::add('ImactPlugin', 'debug', 'class thermostat introuvable');
-      // }
 
       $idTemperature = 33430; // 104 sur la template | 33430 au bureau
       foreach ($thermostats as $thermostat) {
@@ -256,43 +248,6 @@ class ImactPlugin extends eqLogic
         $cmdTempOut->setTemplate('dashboard', 'customtemp::thermometre');
         $cmdTempOut->save();
 
-        // $layout = [
-        //   "backGraph::info" => "0",
-        //   "parameters" => [],
-        //   "height" => "464px",
-        //   "width" => "534px",
-        //   "backGraph::format" => "month",
-        //   "backGraph::type" => "areaspline",
-        //   "backGraph::color" => "#4572a7",
-        //   "layout::dashboard" => "table",
-        //   "layout::dashboard::table::nbLine" => "5",
-        //   "layout::dashboard::table::nbColumn" => "2",
-        //   "layout::dashboard::table::parameters" => [
-        //     "center" => "1",
-        //     "styletable" => "",
-        //     "styletd" => "",
-        //     "text::td::1::1" => "",
-        //     "style::td::1::1" => "colspan=\"2\"",
-        //     "text::td::1::2" => "",
-        //     "style::td::1::2" => "display:none",
-        //     "text::td::2::1" => "",
-        //     "style::td::2::1" => "colspan=\"2\"",
-        //     "text::td::2::2" => "",
-        //     "style::td::2::2" => "display:none",
-        //     "text::td::3::1" => "",
-        //     "style::td::3::1" => "colspan=\"2\"",
-        //     "text::td::3::2" => "",
-        //     "style::td::3::2" => "display:none",
-        //     "text::td::4::1" => "",
-        //     "style::td::4::1" => "",
-        //     "text::td::4::2" => "",
-        //     "style::td::4::2" => "",
-        //     "text::td::5::1" => "Température extérieure",
-        //     "style::td::5::1" => "",
-        //     "text::td::5::2" => "Température intérieure",
-        //     "style::td::5::2" => "",
-        //   ],
-        // ];
         $thermo->setDisplay('layout::dashboard', 'table');
         $thermo->setDisplay('layout::dashboard::table::nbColumn', 2);
         $thermo->setDisplay('layout::dashboard::table::nbLine', 5);
@@ -375,7 +330,6 @@ class ImactPlugin extends eqLogic
   }
   public static function createVolet($volets)
   {
-    log::add('ImactPlugin', 'debug', var_export($volets, true));
     $logicalIdPerPlugin = [
       'z2m' => [
         'action' => [
@@ -415,7 +369,6 @@ class ImactPlugin extends eqLogic
         foreach ($logicalIdPerPlugin[$plugin] as $type => $logicalIds) {
           foreach ($logicalIds as $nom => $logicalId) {
             $cmds[$nom] = $eqLogic->getCmd($type, $logicalId);
-            log::add('scenario', 'debug', "$nom : " . ($cmds[$nom] ? $cmds[$nom]->getId() : 'non trouvé'));
           }
         }
 
@@ -428,73 +381,75 @@ class ImactPlugin extends eqLogic
           $virtual->setObject_id(($eqLogic->getEqType_name() == 'virtual') ? null : 10); // 10 sur la template
           $virtual->save();
 
-          self::createCommandVolet('etat position', $virtual->getId(), $cmds['position']->getId());
+          self::createCommandVolet('etat position','hauteur', $virtual->getId(), $cmds['position']->getId());
 
-          self::createCommandVolet('ouvrir', $virtual->getId(), $cmds['ouvrir']->getId());
+          self::createCommandVolet('ouvrir','up', $virtual->getId(), $cmds['ouvrir']->getId());
 
-          self::createCommandVolet('fermer', $virtual->getId(), $cmds['fermer']->getId());
+          self::createCommandVolet('fermer','down', $virtual->getId(), $cmds['fermer']->getId());
 
-          self::createCommandVolet('stop', $virtual->getId(), $cmds['stop']->getId());
+          self::createCommandVolet('stop','stop', $virtual->getId(), $cmds['stop']->getId());
 
-          self::createCommandVolet('position', $virtual->getId(), $cmds['slider']->getId());
+          self::createCommandVolet('position','position', $virtual->getId(), $cmds['slider']->getId());
 
-          $voletUp = $virtual->getCmd('action', 'ouvrir');
-          $voletUp->setOrder(1);
-          $voletUp->setDisplay('forceReturnLineAfter', 1);
-          $voletUp->setDisplay('icon', '<i class="fa fa-arrow-up"></i>');
-          $voletUp->save();
+          self::createVisuelVolet($virtual,$volet['etatRetour']);
 
-          $voletStop = $virtual->getCmd('action', 'stop');
-          $voletStop->setOrder(2);
-          $voletStop->setDisplay('forceReturnLineAfter', 1);
-          $voletStop->setDisplay('icon', '<i class="fa fa-stop"></i>');
-          $voletStop->save();
+          // $voletUp = $virtual->getCmd('action', 'up');
+          // $voletUp->setOrder(1);
+          // $voletUp->setDisplay('forceReturnLineAfter', 1);
+          // $voletUp->setDisplay('icon', '<i class="fa fa-arrow-up"></i>');
+          // $voletUp->save();
 
-          $voletDown = $virtual->getCmd('action', 'fermer');
-          $voletDown->setDisplay('forceReturnLineAfter', 1);
-          $voletDown->setDisplay('icon', '<i class="fa fa-arrow-down"></i>');
-          $voletDown->setOrder(3);
-          $voletDown->save();
+          // $voletStop = $virtual->getCmd('action', 'stop');
+          // $voletStop->setOrder(2);
+          // $voletStop->setDisplay('forceReturnLineAfter', 1);
+          // $voletStop->setDisplay('icon', '<i class="fa fa-stop"></i>');
+          // $voletStop->save();
 
-          $hauteur = $virtual->getCmd('info', 'etatPosition');
-          $hauteur->setIsVisible(1);
-          $hauteur->setDisplay('showStatsOndashboard', 1);
-          $hauteur->setDisplay('showStatsOnmobile', 1);
-          $hauteur->setDisplay('showNameOndashboard', 0);
-          $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
-          $hauteur->save();
+          // $voletDown = $virtual->getCmd('action', 'down');
+          // $voletDown->setDisplay('forceReturnLineAfter', 1);
+          // $voletDown->setDisplay('icon', '<i class="fa fa-arrow-down"></i>');
+          // $voletDown->setOrder(3);
+          // $voletDown->save();
+
+          // $hauteur = $virtual->getCmd('info', 'hauteur');
+          // $hauteur->setIsVisible(1);
+          // $hauteur->setDisplay('showStatsOndashboard', 1);
+          // $hauteur->setDisplay('showStatsOnmobile', 1);
+          // $hauteur->setDisplay('showNameOndashboard', 0);
+          // $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
+          // $hauteur->save();
 
 
-          $voletPosition = $virtual->getCmd('action', 'position');
-          $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
-          $voletPosition->save();
+          // $voletPosition = $virtual->getCmd('action', 'position');
+          // $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
+          // $voletPosition->save();
 
-          $virtual->setDisplay('layout::dashboard', 'table');
-          $virtual->setDisplay('layout::dashboard::table::nbColumn', 3);
-          $virtual->setDisplay('layout::dashboard::table::nbLine', 1);
+          // $virtual->setDisplay('layout::dashboard', 'table');
+          // $virtual->setDisplay('layout::dashboard::table::nbColumn', 3);
+          // $virtual->setDisplay('layout::dashboard::table::nbLine', 1);
 
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
 
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
 
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
 
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
 
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
-          $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
+          // $virtual->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
 
-          $virtual->save();
+          // $virtual->save();
 
 
         } else {
           $voletProp = new voletProp();
           $voletProp->setName($nomComplet[1]);
-          $voletProp->setObject_id(($plugin == 'virtual') ? null : 10); // 10 sur la template | au bureau : null pour les tests
+          $voletProp->setObject_id(($eqLogic->getEqType_name() == 'virtual') ? null : 10); // 10 sur la template | au bureau : null pour les tests
           $voletProp->setEqType_name('voletProp');
           $voletProp->setIsEnable(1);
           $voletProp->setIsVisible(1);
@@ -504,57 +459,59 @@ class ImactPlugin extends eqLogic
           $voletProp->setConfiguration('jeedomState', 1);
           $voletProp->save();
 
-          $voletProp->setDisplay('layout::dashboard', 'table');
-          $voletProp->setDisplay('layout::dashboard::table::nbColumn', 3);
-          $voletProp->setDisplay('layout::dashboard::table::nbLine', 1);
+          self::createVisuelVolet($voletProp,$volet['etatRetour']);
 
-          $voletDown = $voletProp->getCmd('action', 'down');
-          $voletDown->setOrder(3);
-          $voletDown->setDisplay('forceReturnLineAfter', 1);
-          $voletDown->setDisplay('showNameOnDashboard', 1);
-          $voletDown->save();
+          // $voletProp->setDisplay('layout::dashboard', 'table');
+          // $voletProp->setDisplay('layout::dashboard::table::nbColumn', 3);
+          // $voletProp->setDisplay('layout::dashboard::table::nbLine', 1);
 
-          $voletStop = $voletProp->getCmd('action', 'stop');
-          $voletStop->setOrder(2);
-          $voletStop->setDisplay('forceReturnLineAfter', 1);
-          $voletStop->setDisplay('showNameOnDashboard', 1);
-          $voletStop->save();
+          // $voletDown = $voletProp->getCmd('action', 'down');
+          // $voletDown->setOrder(3);
+          // $voletDown->setDisplay('forceReturnLineAfter', 1);
+          // $voletDown->setDisplay('showNameOnDashboard', 0);
+          // $voletDown->save();
 
-          $voletUp = $voletProp->getCmd('action', 'up');
-          $voletUp->setOrder(1);
-          $voletUp->setDisplay('forceReturnLineAfter', 1);
-          $voletUp->setDisplay('showNameOnDashboard', 1);
-          $voletUp->save();
+          // $voletStop = $voletProp->getCmd('action', 'stop');
+          // $voletStop->setOrder(2);
+          // $voletStop->setDisplay('forceReturnLineAfter', 1);
+          // $voletStop->setDisplay('showNameOnDashboard', 0);
+          // $voletStop->save();
 
-          $voletPosition = $voletProp->getCmd('action', 'position');
-          $voletPosition->setDisplay('showNameOndashboard', 0);
-          $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
-          $voletPosition->save();
+          // $voletUp = $voletProp->getCmd('action', 'up');
+          // $voletUp->setOrder(1);
+          // $voletUp->setDisplay('forceReturnLineAfter', 1);
+          // $voletUp->setDisplay('showNameOnDashboard', 0);
+          // $voletUp->save();
 
-          $hauteur = $voletProp->getCmd('info', 'hauteur');
-          $hauteur->setIsVisible(1);
-          $hauteur->setDisplay('showStatsOndashboard', 1);
-          $hauteur->setDisplay('showStatsOnmobile', 1);
-          $hauteur->setDisplay('showNameOndashboard', 0);
-          $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
-          $hauteur->save();
+          // $voletPosition = $voletProp->getCmd('action', 'position');
+          // $voletPosition->setDisplay('showNameOndashboard', 0);
+          // $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
+          // $voletPosition->save();
 
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
+          // $hauteur = $voletProp->getCmd('info', 'hauteur');
+          // $hauteur->setIsVisible(1);
+          // $hauteur->setDisplay('showStatsOndashboard', 1);
+          // $hauteur->setDisplay('showStatsOnmobile', 1);
+          // $hauteur->setDisplay('showNameOndashboard', 0);
+          // $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
+          // $hauteur->save();
 
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
 
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
 
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
 
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
-          $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
 
-          $voletProp->save();
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
+          // $voletProp->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
+
+          // $voletProp->save();
           log::add('ImactPlugin', 'debug', 'display : ' . json_encode($voletProp->getDisplay()));
 
         }
@@ -565,23 +522,87 @@ class ImactPlugin extends eqLogic
     }
 
   }
-  public static function createCommandVolet($libelle, $virtual, $commande)
+  public static function createVisuelVolet($volet, $etatRetour)
   {
-    $cmdStop = new virtualCmd();
-    $cmdStop->setName(($libelle == 'etat position') ? ucwords($libelle) : ucfirst($libelle));
-    $cmdStop->setEqLogic_id($virtual);
-    $cmdStop->setLogicalId(($libelle == 'etat position')?'etatPosition':$libelle);
-    $cmdStop->setType(($libelle == 'etat position') ? 'info' : 'action');
-    $cmdStop->setSubType(($libelle == 'etat position') ? 'numeric' : 'other');
-    $cmdStop->setConfiguration(($libelle == 'etat position') ? 'calcul' : 'infoName', '#' . $commande . '#');
-    if ($libelle == 'etat position') {
-      $cmdStop->setUnite('%');
-    } else {
-      $cmdStop->setConfiguration('virtualAction', '1');
+    $voletDown = $volet->getCmd('action', 'down');
+    $voletStop = $volet->getCmd('action', 'stop');
+    $voletUp = $volet->getCmd('action', 'up');
+    $voletPosition = $volet->getCmd('action', 'position');
+    $hauteur = $volet->getCmd('info', 'hauteur');
+
+    $voletDown->setOrder(3);
+    $voletDown->setDisplay('forceReturnLineAfter', 1);
+    $voletDown->setDisplay('showNameOnDashboard', 0);
+    if ($etatRetour) {
+      $voletDown->setDisplay('icon', '<i class="fa fa-arrow-down"></i>');
     }
-    $cmdStop->setDisplay('showNameOndashboard', '0');
-    $cmdStop->setDisplay('showNameOnmobile', '0');
-    $cmdStop->save();
+    $voletDown->save();
+
+    $voletStop->setOrder(2);
+    $voletStop->setDisplay('forceReturnLineAfter', 1);
+    $voletStop->setDisplay('showNameOnDashboard', 0);
+    if ($etatRetour) {
+      $voletStop->setDisplay('icon', '<i class="fa fa-stop"></i>');
+    }
+    $voletStop->save();
+
+    $voletUp->setOrder(1);
+    $voletUp->setDisplay('forceReturnLineAfter', 1);
+    $voletUp->setDisplay('showNameOnDashboard', 0);
+    if ($etatRetour) {
+      $voletUp->setDisplay('icon', '<i class="fa fa-arrow-up"></i>');
+    }
+    $voletUp->save();
+
+    $voletPosition->setDisplay('showNameOndashboard', 0);
+    $voletPosition->setTemplate('dashboard', 'core::sliderVertical');
+    $voletPosition->save();
+
+    $hauteur->setIsVisible(1);
+    $hauteur->setDisplay('showStatsOndashboard', 1);
+    $hauteur->setDisplay('showStatsOnmobile', 1);
+    $hauteur->setDisplay('showNameOndashboard', 0);
+    $hauteur->setTemplate('dashboard', 'custom::Imact - Volets');
+    $hauteur->save();
+
+    $volet->setDisplay('layout::dashboard', 'table');
+    $volet->setDisplay('layout::dashboard::table::nbColumn', 3);
+    $volet->setDisplay('layout::dashboard::table::nbLine', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::line', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $hauteur->getId() . '::column', 2);
+
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::line', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletPosition->getId() . '::column', 3);
+
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::line', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletDown->getId() . '::column', 1);
+
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::line', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletStop->getId() . '::column', 1);
+
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::line', 1);
+    $volet->setDisplay('layout::dashboard::table::cmd::' . $voletUp->getId() . '::column', 1);
+
+    $volet->save();
+
+  }
+  public static function createCommandVolet($libelle,$logicalID, $virtual, $commande)
+  {
+    $cmd = new virtualCmd();
+    $cmd->setName(($libelle == 'etat position') ? ucwords($libelle) : ucfirst($libelle));
+    $cmd->setEqLogic_id($virtual);
+    $cmd->setLogicalId($logicalID);
+    $cmd->setType(($libelle == 'etat position') ? 'info' : 'action');
+    $cmd->setSubType(($libelle == 'etat position') ? 'numeric' : 'other');
+    $cmd->setConfiguration(($libelle == 'etat position') ? 'calcul' : 'infoName', '#' . $commande . '#');
+    if ($libelle == 'etat position') {
+      $cmd->setUnite('%');
+    } else {
+      $cmd->setConfiguration('virtualAction', '1');
+    }
+    $cmd->setDisplay('showNameOndashboard', '0');
+    $cmd->setDisplay('showNameOnmobile', '0');
+    $cmd->save();
   }
   public static function verifyIsWithoutLogicalId($id)
   {
@@ -597,22 +618,8 @@ class ImactPlugin extends eqLogic
   public static function copyAllCommands($cmds, $equipementCible, $commandeType, $exclureCommandes1, $exclureCommandes2, $exclureCommandes3, $includeCommandes)
   {
     $commandesCrees = 0;
-
-    log::add('scenario', 'debug', $exclureCommandes1);
-    log::add('scenario', 'debug', $exclureCommandes2);
-    log::add('scenario', 'debug', $exclureCommandes3);
-    log::add('scenario', 'debug', 'include :' . $includeCommandes);
-
-
-
     foreach ($cmds as $cmd) {
       $oldCmdAction = cmd::byId($cmd->getValue());
-      if (empty($includeCommandes) || strpos($cmd->getName(), $includeCommandes) !== false) {
-        log::add('scenario', 'debug', $cmd->getName());
-      }
-
-
-
       if (!cmd::byEqLogicIdCmdName($equipementCible, $cmd->getName())) {
         if (empty($includeCommandes) || strpos($cmd->getName(), $includeCommandes) !== false) {
           if (
@@ -620,7 +627,6 @@ class ImactPlugin extends eqLogic
             (empty($exclureCommandes2) || strpos($cmd->getName(), $exclureCommandes2) === false) &&
             (empty($exclureCommandes3) || strpos($cmd->getName(), $exclureCommandes3) === false)
           ) {
-            log::add('scenario', 'debug', 'Commande créée');
 
             $newCommande = clone cmd::byId($cmd->getId());
             $newCommande->setId('');
@@ -645,7 +651,6 @@ class ImactPlugin extends eqLogic
   {
 
     $equipementSource = eqLogic::byId($automate['equipementSource']);
-    log::add('ImactPlugin', 'debug', var_export($automate, true));
     $commandesCrees = 0;
 
     $actionCmds = $equipementSource->getCmd('action', null);
