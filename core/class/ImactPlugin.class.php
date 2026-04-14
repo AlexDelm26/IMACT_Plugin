@@ -558,7 +558,9 @@ class ImactPlugin extends eqLogic
               $newCommande->setConfiguration('calcul', '#' . $cmd->getId() . '#');
             } else {
               $newCommande->setConfiguration('infoName', '#' . $cmd->getId() . '#');
-              $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
+              if(!empty($oldCmdAction)){
+                $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
+              }
 
             }
             $newCommande->setEqLogic_id($equipementCible);
@@ -582,17 +584,26 @@ class ImactPlugin extends eqLogic
 
     if ($automate['copierAllCommandes']) {
       // Copie les commandes infos d'abord
+      log::add('ImactPlugin', 'debug', 'Début des commandes infos à copier');
       $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', '', '', '', '');
+      log::add('ImactPlugin', 'debug', 'Les commandes infos ont été copiées');
 
       // Copie les commandes actions
+      log::add('ImactPlugin', 'debug', 'Début des commandes actions à copier');
       $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', '', '', '', '');
+      log::add('ImactPlugin', 'debug', 'Les commandes actions ont été copiées');
 
     } else {
       // Copie les commandes infos d'abord
+      log::add('ImactPlugin', 'debug', 'Début des commandes infos à copier');
       $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
+      log::add('ImactPlugin', 'debug', 'Les commandes infos ont été copiées');
 
       // Copie les commandes actions
+      log::add('ImactPlugin', 'debug', 'Début des commandes actions à copier');
+
       $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
+      log::add('ImactPlugin', 'debug', 'Les commandes actions ont été copiées');
 
     }
     return $commandesCrees;
