@@ -70,9 +70,9 @@ class ImactPlugin extends eqLogic
         // $cmdInfo->setIsHistorized(1);
         // $cmdInfo->setConfiguration('calcul', '#' . $cmdSource->getId() . '#');
         // $cmdInfo->save();
-        $idEtat=self::createCommandLed('Etat',$virtual->getId(),'',$cmdSource,'info');
-        self::createCommandLed('On',$virtual->getId(),$idEtat,$cmdSource,'action');
-        self::createCommandLed('Off',$virtual->getId,$idEtat,$cmdSource,'action');
+        $idEtat = self::createCommandLed('Etat', $virtual->getId(), '', $cmdSource->getId(), 'info');
+        self::createCommandLed('On', $virtual->getId(), $idEtat, $cmdSourceOn->getId(), 'action');
+        self::createCommandLed('Off', $virtual->getId(), $idEtat, $cmdSourceOff->getId(), 'action');
 
         // Commande action On
         // $cmdOn = new virtualCmd();
@@ -130,7 +130,7 @@ class ImactPlugin extends eqLogic
       $cmd->setIsHistorized(1);
       $cmd->save();
       return $cmd->getId();
-      } else {
+    } else {
       $cmd->setValue($value);
       $cmd->setConfiguration('virtualAction', '1');
       $cmd->setDisplay('showNameOndashboard', '0');
@@ -139,7 +139,7 @@ class ImactPlugin extends eqLogic
       $cmd->setTemplate('mobile', 'custom::Lumière ON/OFF');
       $cmd->save();
     }
-    
+
   }
 
   public static function createThermostat($thermostats)
