@@ -24,28 +24,28 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				<br>
 				<span>{{Configuration}}</span>
 			</div>
-			<div class="cursor logoPrimary" id="btn_add_LED">
+			<div class="cursor logoPrimary" id="btn_add_LED" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 				<span>{{Ajouter Eclairage}}</span>
 			</div>
-			<div class="cursor logoPrimary" id="btn_add_THERMOSTAT">
+			<div class="cursor logoPrimary" id="btn_add_THERMOSTAT" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
 				<span>{{Ajouter Thermostat}}</span>
 			</div>
-			<div class="cursor logoPrimary" id="btn_add_VOLET">
+			<div class="cursor logoPrimary" id="btn_add_VOLET" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
 				<span>{{Ajouter Volet}}</span>
 			</div>
-			<div class="cursor logoPrimary" id="btn_add_AUTOMATE">
+			<div class="cursor logoPrimary" id="btn_add_AUTOMATE" data-action="add">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
-				<span class="text-info">{{Ajouter Automate}}</span>
+				<span>{{Ajouter Automate}}</span>
 			</div>
 
 		</div>
