@@ -27,29 +27,29 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			<div class="cursor logoPrimary" id="btn_add_LED">
 				<i class="fas fa-plus-circle"></i>
 				<br>
-				<span style="color:black">{{Ajouter Eclairage}}</span>
+				<span>{{Ajouter Eclairage}}</span>
 			</div>
 			<div class="cursor logoPrimary" id="btn_add_THERMOSTAT">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
-				<span style="color:black">{{Ajouter Thermostat}}</span>
+				<span>{{Ajouter Thermostat}}</span>
 			</div>
 			<div class="cursor logoPrimary" id="btn_add_VOLET">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
-				<span style="color:black">{{Ajouter Volet}}</span>
+				<span>{{Ajouter Volet}}</span>
 			</div>
 			<div class="cursor logoPrimary" id="btn_add_AUTOMATE">
 				<i class="fas fa-plus-circle"></i>
 				<br>
 
-				<span style="color:black">{{Ajouter Automate}}</span>
+				<span class="text-info">{{Ajouter Automate}}</span>
 			</div>
 
 		</div>
-		<legend> {{Version 1.7.0 | 13/04/2026}}</legend>
+		<legend> {{Version 1.7.0 | 09/04/2026}}</legend>
 		<!-- <legend><i class="fas fa-table"></i> {{Mes templates}}</legend> -->
 		<?php
 		// if (count($eqLogics) == 0) {
