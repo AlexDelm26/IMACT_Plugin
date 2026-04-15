@@ -119,7 +119,7 @@ class ImactPlugin extends eqLogic
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
-        $thermo->save();
+        $thermo->save(false);
         log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
         /* */
         // Action
@@ -213,109 +213,10 @@ class ImactPlugin extends eqLogic
             ]
           ],
         ]);
-        $thermo->save();
-        log::add('ImactPlugin', 'debug', 'Commandes créés');
-        $cmdMode = $thermo->getCmd('action', 'thermostat');        // boutons modes
-        $cmd = $thermo->getCmd('info', 'mode');
-        $cmd->setTemplate('dashboard', 'custom::Thermostat_statut_All');
-        $cmd->save();
-        $widgetPath = __DIR__ . '/../../data/customTemplates/dashboard/cmd.info.string.Thermostat_statut_All.html';
-        $files = glob('/var/www/html/data/customTemplates/dashboard/cmd.info.string.*.html');
-        foreach ($files as $file) {
-          log::add('ImactPlugin', 'debug', basename($file));
-        }
-        log::add('ImactPlugin', 'debug', "Fichier widget existe : " . (file_exists($widgetPath) ? 'OUI' : 'NON') . "\n");
-        $thermo->getCmd('info', 'mode')->setTemplate('dashboard', 'Thermostat_statut_All');
-        $cmdOnOff = $thermo->getCmd('action', 'thermostat_mode');   // on/off
-        $cmdOrder = $thermo->getCmd('action', 'order');             // consigne
-        $cmdState = $thermo->getCmd('info', 'state');               // état chauffe
-        $cmdPower = $thermo->getCmd('info', 'power');               // puissance
-        $cmdTempIn = $thermo->getCmd('info', 'temperature');         // temp intérieure
-        $cmdTempIn->setTemplate('dashboard', 'customtemp::thermometre');
-        $cmdTempIn->save();
-        $cmdTempOut = cmd::byId($idTemperature);
-        $cmdTempOut->setTemplate('dashboard', 'customtemp::thermometre');
-        $cmdTempOut->save();
+        $thermo->save(false);
 
-        // $layout = [
-        //   "backGraph::info" => "0",
-        //   "parameters" => [],
-        //   "height" => "464px",
-        //   "width" => "534px",
-        //   "backGraph::format" => "month",
-        //   "backGraph::type" => "areaspline",
-        //   "backGraph::color" => "#4572a7",
-        //   "layout::dashboard" => "table",
-        //   "layout::dashboard::table::nbLine" => "5",
-        //   "layout::dashboard::table::nbColumn" => "2",
-        //   "layout::dashboard::table::parameters" => [
-        //     "center" => "1",
-        //     "styletable" => "",
-        //     "styletd" => "",
-        //     "text::td::1::1" => "",
-        //     "style::td::1::1" => "colspan=\"2\"",
-        //     "text::td::1::2" => "",
-        //     "style::td::1::2" => "display:none",
-        //     "text::td::2::1" => "",
-        //     "style::td::2::1" => "colspan=\"2\"",
-        //     "text::td::2::2" => "",
-        //     "style::td::2::2" => "display:none",
-        //     "text::td::3::1" => "",
-        //     "style::td::3::1" => "colspan=\"2\"",
-        //     "text::td::3::2" => "",
-        //     "style::td::3::2" => "display:none",
-        //     "text::td::4::1" => "",
-        //     "style::td::4::1" => "",
-        //     "text::td::4::2" => "",
-        //     "style::td::4::2" => "",
-        //     "text::td::5::1" => "Température extérieure",
-        //     "style::td::5::1" => "",
-        //     "text::td::5::2" => "Température intérieure",
-        //     "style::td::5::2" => "",
-        //   ],
-        // ];
         $thermo->setDisplay('layout::dashboard', 'table');
-        $thermo->setDisplay('layout::dashboard::table::nbColumn', 2);
-        $thermo->setDisplay('layout::dashboard::table::nbLine', 5);
-        $thermo->setDisplay('layout::dashboard::table::parameters', [
-          'style::td::1::1' => 'colspan="2"',
-          'style::td::1::2' => 'display:none',
-        ]);
-        $thermo->save();
-        if ($cmdMode) {
-          $thermo->setDisplay("layout::dashboard::table::cmd::" . $cmdMode->getId() . "::line", 2);
-          $thermo->setDisplay("layout::dashboard::table::cmd::" . $cmdMode->getId() . "::column", 1);
-        }
-        // if ($cmdOrder) {
-        //   $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::line"] = "3";
-        //   $layout["layout::dashboard::table::cmd::" . $cmdOrder->getId() . "::column"] = "1";
-        // }
-        // if ($cmdState) {
-        //   $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::line"] = "4";
-        //   $layout["layout::dashboard::table::cmd::" . $cmdState->getId() . "::column"] = "1";
-        // }
-        // if ($cmdPower) {
-        //   $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::line"] = "4";
-        //   $layout["layout::dashboard::table::cmd::" . $cmdPower->getId() . "::column"] = "2";
-        // }
-        // if ($cmdTempOut) {
-        //   $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::line"] = "5";
-        //   $layout["layout::dashboard::table::cmd::" . $cmdTempOut->getId() . "::column"] = "1";
-        // }
-        // if ($cmdTempIn) {
-
-        //   $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::line', 5);
-        //   $thermo->setDisplay('layout::dasgboard::table::cmd::' . $cmdTempIn->getId() . '::column', 1);
-
-        //   $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::line"] = "5";
-        //   $layout["layout::dashboard::table::cmd::" . $cmdTempIn->getId() . "::column"] = "2";
-        // }
-
-        // foreach ($layout as $key => $value) {
-        //   $thermo->setDisplay($key, $value);
-        // }
-        $thermo->save();
-        // log::add('ImactPlugin', 'debug', 'config après save : ' . json_encode($thermo->getConfiguration()));
+        $thermo->save(false);
       }
 
     } catch (\Throwable $th) {
@@ -558,7 +459,7 @@ class ImactPlugin extends eqLogic
               $newCommande->setConfiguration('calcul', '#' . $cmd->getId() . '#');
             } else {
               $newCommande->setConfiguration('infoName', '#' . $cmd->getId() . '#');
-              if(!empty($oldCmdAction)){
+              if (!empty($oldCmdAction)) {
                 $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
               }
 
@@ -584,26 +485,18 @@ class ImactPlugin extends eqLogic
 
     if ($automate['copierAllCommandes']) {
       // Copie les commandes infos d'abord
-      log::add('ImactPlugin', 'debug', 'Début des commandes infos à copier');
       $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', '', '', '', '');
-      log::add('ImactPlugin', 'debug', 'Les commandes infos ont été copiées');
 
       // Copie les commandes actions
-      log::add('ImactPlugin', 'debug', 'Début des commandes actions à copier');
       $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', '', '', '', '');
-      log::add('ImactPlugin', 'debug', 'Les commandes actions ont été copiées');
 
     } else {
       // Copie les commandes infos d'abord
-      log::add('ImactPlugin', 'debug', 'Début des commandes infos à copier');
       $commandesCrees = self::copyAllCommands($infoCmds, $automate['equipementCible'], 'calcul', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
-      log::add('ImactPlugin', 'debug', 'Les commandes infos ont été copiées');
 
       // Copie les commandes actions
-      log::add('ImactPlugin', 'debug', 'Début des commandes actions à copier');
-
       $commandesCrees += self::copyAllCommands($actionCmds, $automate['equipementCible'], 'infoName', $automate['exclureCommandes1'], $automate['exclureCommandes2'], $automate['exclureCommandes3'], $automate['commandesContenant']);
-      log::add('ImactPlugin', 'debug', 'Les commandes actions ont été copiées');
+
 
     }
     return $commandesCrees;

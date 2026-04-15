@@ -656,6 +656,7 @@ async function copyCommandes() {
       message: 'Veuillez sélectionner un équipement source',
       level: 'danger'
     })
+    
   }
 
   if (!equipementCible) {
@@ -663,6 +664,7 @@ async function copyCommandes() {
       message: 'Veuillez sélectionner un équipement cible',
       level: 'danger'
     })
+    
   }
 
   if (!copierAllCommandes) {

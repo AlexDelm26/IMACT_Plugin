@@ -52,7 +52,7 @@
   "hasOwnDeamon": false,
   "maxDependancyInstallTime": 0,
   "changelog_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta/changelog",
-  "changelog": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/changelog",
+  "changelog": "https://github.com/phongcroissant/ImactPlugin/blob/main/docs/fr_FR/changelog.md",
   "documentation_beta": "https://doc.jeedom.com/#language#/plugins/programming/ImactPlugin/beta",
   "documentation": "https://github.com/phongcroissant/ImactPlugin/blob/main/docs/fr_FR/index.md",
   "link": {

@@ -1,30 +1,26 @@
-# Changelog plugin template
+# Changelog ImactPlugin
 
->**IMPORTANT**
->
->S'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
+# 1.3.2 | 15/04/2026
 
-# 19/01/2022
+- docs : ajout du changelog
 
-- Optimisations V4.2
+# 1.3.1 | 14/04/2026
 
-# 20/11/2020
+- fix : Prise en compte des commandes actions sans commandes liées
 
-- Présentation officielle V4
-- Ajouts d'éléments d'informations et de paramètres pour les commandes
+# 1.3.0
 
-# 16/11/2020
+- feat : Ajouter Automate
+- refactor : Fonctionnalités (Eclairage, Volet, Automate)
 
-- version minimale Jeedom: 3.3.39 (dernière MAJ critique)
+# 1.2.0
 
-# 04/11/2020
+- feat : Ajouter Volet
 
-- Nouvelle présentation de la liste des objets
+# 1.1.0
 
-# 07/08/2020
+- feat : Ajouter Thermostat
 
-- Ajout de commentaires
+# 1.0.0
 
-# 17/05/2020
-
-- Mise à jour de la documentation
+- feat : Ajouter Eclairage
