@@ -1,8 +1,12 @@
 # Changelog ImactPlugin
 
+# 1.3.3 | 16/04/2026
+
+- fix : Correction sur le consigne Boost
+
 # 1.3.2 | 15/04/2026
 
-- docs : ajout du changelog
+- docs : Ajout du changelog
 
 # 1.3.1 | 14/04/2026
 

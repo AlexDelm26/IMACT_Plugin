@@ -168,7 +168,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneBoost')->getId() . '#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#'.'+2+'.'#'.$commandesZone->getCmd('info','DeltaTempChauffe')->getId().'#'] // à mettre dynamiquement
               ]
             ]
           ],
