@@ -119,7 +119,7 @@ class ImactPlugin extends eqLogic
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
-        $thermo->save(false);
+        $thermo->save();
         log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
         /* */
         // Action
@@ -168,7 +168,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#'.'+2+'.'#'.$commandesZone->getCmd('info','DeltaTempChauffe')->getId().'#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#' . '+2+' . '#' . $commandesZone->getCmd('info', 'DeltaTempChauffe')->getId() . '#'] // à mettre dynamiquement
               ]
             ]
           ],
@@ -213,10 +213,28 @@ class ImactPlugin extends eqLogic
             ]
           ],
         ]);
-        $thermo->save(false);
+        $thermo->save();
 
         $thermo->setDisplay('layout::dashboard', 'table');
-        $thermo->save(false);
+        $thermo->setDisplay('layout::dashboard::table::nbColumn', 2);
+        $thermo->setDisplay('layout::dashboard::table::nbLine', 5);
+
+        // $cmdBoost=cmd::byEqLogicIdCmdName($thermo->getId(),'Boost');
+        $mode=$thermo->getCmd('info','mode');
+        $mode->setTemplate('dashboard','custom::Thermostat_statut_All');
+        $mode->save();
+
+        $thermo->setDisplay('layout::dashboard::table::parameters',[
+          'style::td::1::2'=>'display:none',
+          'style::td::2::2'=>'display:none',
+          'style::td::3::2'=>'display:none',
+          'text::td::5::1'=>'Température extérieur',
+          'text::td::5::2'=>'Température intérieur',
+          ]);
+
+        $thermo->setDisplay('layout::dashboard::table::cmd::'.$mode->getId(). '::line',2);
+        $thermo->setDisplay('layout::dashboard::table::cmd::'.$mode->getId(). '::column',1);
+        $thermo->save();
       }
 
     } catch (\Throwable $th) {
