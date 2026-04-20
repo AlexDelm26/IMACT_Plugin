@@ -281,7 +281,7 @@ function addChampThermostat() {
       html += "<td>{{Commande personnelle}}</td>";
       html += "<td><div class='input-group'>";
       html += "<input type='text' class='form-control eqLogicAttr' data-l1key='cmd_custom_" + i + "' id='cmd_custom_" + i + "' placeholder='Sélectionner commande' readonly>";
-      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmd' data-input='cmd_custom_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
+      html += "<span class='input-group-btn'><a class='btn btn-default btn-sm bt_selectCmdInfo' data-input='cmd_custom_" + i + "'><i class='fas fa-list-alt'></i></a></span>";
       html += "</div></td></tr>";
 
 
@@ -356,6 +356,19 @@ function addChampThermostat() {
       var inputId = $(this).data('input');
 
       jeedom.cmd.getSelectModal({}, function (result) {
+        console.log('result cmd:', result);
+        if (result) {
+          $('#' + inputId)
+            .val(result.human)
+            .attr('data-cmd-id', result.cmd.id)
+            .trigger('change');
+        }
+      });
+    });
+    $(document).off('click', '.bt_selectCmdInfo').on('click', '.bt_selectCmdInfo', function () {
+      var inputId = $(this).data('input');
+
+      jeedom.cmd.getSelectModal({cmd:{type:'info'}}, function (result) {
         console.log('result cmd:', result);
         if (result) {
           $('#' + inputId)

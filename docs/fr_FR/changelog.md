@@ -1,5 +1,9 @@
 # Changelog ImactPlugin
 
+# 1.3.4 | 20/04/2026
+
+- fix : Correction sur le visuel d'un thermostat
+
 # 1.3.3 | 16/04/2026
 
 - fix : Correction sur le consigne Boost
