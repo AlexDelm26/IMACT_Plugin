@@ -192,8 +192,6 @@ async function addThermostat() {
     });
   }
   if (thermostatsInvalides.length > 0) {
-    btn.disabled = false;
-    btn.textContent = 'Valider';
     const thermostatsInvalidesLabels = thermostatsInvalides
       .map(t => `n°${t.numeroThermostat} (${t.nomThermostat || 'nom vide'})`);
 
@@ -202,6 +200,7 @@ async function addThermostat() {
       level: 'danger'
     });
     btn.disabled = false;
+    btn.textContent = 'Valider';
     return;
   }
 
@@ -218,6 +217,8 @@ async function addThermostat() {
       level: 'danger'
     });
     btn.disabled = false;
+    btn.textContent = 'Valider';
+    
     return;
   }
   const erreurs = [];
@@ -242,9 +243,7 @@ async function addThermostat() {
       erreurs.push(data.result)
     }
   }
-  console.log('Erreurs');
   
-  console.log(erreurs);
   if (erreurs.length > 0) {
     jeedomUtils.showAlert({
       message: `${erreurs.join('<br>')}`,
@@ -268,12 +267,13 @@ async function addThermostat() {
       });
       const data = await response.json();
       if (data.state === "ok") {
-        console.log('success !');
 
         success++;
         jeedomUtils.showAlert({ message: `${success}/${thermostats.length} créé(s)...`, level: 'success' });
       } else {
         btn.disabled = false;
+  btn.textContent = 'Valider';
+
         // jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
       }
     } catch (error) {
