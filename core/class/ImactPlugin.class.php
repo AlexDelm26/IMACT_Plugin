@@ -218,8 +218,8 @@ class ImactPlugin extends eqLogic
         $thermo->setDisplay('layout::dashboard', 'table');
         $thermo->setDisplay('layout::dashboard::table::nbColumn', 2);
         $thermo->setDisplay('layout::dashboard::table::nbLine', 5);
-        $thermo->setDisplay('height', '464px');
-        $thermo->setDisplay('width', '580px');
+        $thermo->setDisplay('height', '526px');
+        $thermo->setDisplay('width', '628px');
 
         self::setOrderConsigneThermo(1, 'Boost', $thermo->getId());
         self::setOrderConsigneThermo(2, 'Confort', $thermo->getId());
