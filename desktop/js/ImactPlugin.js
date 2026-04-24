@@ -177,7 +177,7 @@ async function addThermostat() {
     let commandeChauffer = document.getElementById('cmd_heat_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeArreter = document.getElementById('cmd_stop_' + i)?.getAttribute('data-cmd-id') ?? null
     let commandeConsigne = document.getElementById('cmd_setpoint_' + i)?.getAttribute('data-cmd-id') ?? null
-    let consigneZone = document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 440 // 8 sur la template | 440 au bureau
+    let consigneZone = document.getElementById('zone_' + i)?.getAttribute('data-eqlogic-id') ?? 8 // 8 sur la template | 440 au bureau
 
 
     thermostats.push({
