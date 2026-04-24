@@ -82,6 +82,35 @@ try {
     ajax::success('ok');
     exit;
   }
+  if (init('action') == 'addTHERMOSTAT') {
+    $thermostat = json_decode(init('thermostat'), true);
+    // $nameDuplicated = ImactPlugin::verifyDuplicateName([$thermostat]);
+
+    // if (!empty($nameDuplicated)) {
+    //   throw new Exception('Nom déjà utilisé : ' . $thermostat['nomThermostat']);
+    // }
+
+    ImactPlugin::createThermostat([$thermostat]);
+    ajax::success('ok');
+    exit;
+  }
+  if (init('action') == 'verifyThermostat') {
+    $thermostat = json_decode(init('thermostat'), true);
+    $nameDuplicated = ImactPlugin::verifyDuplicateName([$thermostat]);
+
+    if (!empty($nameDuplicated)) {
+      throw new Exception('Thermostat n°' . $thermostat['numeroThermostat'] . ': Nom déjà existant');
+    }
+    log::add('ImactPlugin', 'debug', var_export(!empty($thermostat['commandePersonnelle']), true));
+
+    if (!empty($thermostat['commandePersonnelle'])) {
+      if (!ImactPlugin::verifyCommandeInfo($thermostat)) {
+        throw new Exception('Thermostat n°' . $thermostat['numeroThermostat'] . ': Commande personnelle non info');
+      }
+    }
+    ajax::success('ok');
+    exit;
+  }
   if (init('action') == 'verifyVolet') {
     ajax::success(ImactPlugin::verifyVoletPropExist());
   }
@@ -101,7 +130,7 @@ try {
   }
   if (init('action') == 'addVOLET') {
     $volet = json_decode(init('volet'), true);
-        log::add('ImactPlugin','debug',var_export($volet,true));
+    log::add('ImactPlugin', 'debug', var_export($volet, true));
 
     ImactPlugin::createVolet([$volet]);
     ajax::success('ok');
@@ -111,8 +140,8 @@ try {
     $idEqLogic = init('id');
     ajax::success(ImactPlugin::verifyIsWithoutLogicalId($idEqLogic));
   }
-  if(init('action')=='convertAutomate'){
-    $automate=json_decode(init('automate'),true);
+  if (init('action') == 'convertAutomate') {
+    $automate = json_decode(init('automate'), true);
     ajax::success(ImactPlugin::convertAutomate($automate));
   }
 
