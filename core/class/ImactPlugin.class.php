@@ -119,8 +119,15 @@ class ImactPlugin extends eqLogic
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
-        // $thermo->save();
-        // log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
+        $thermo->setConfiguration('temperature_outdoor', '#' . cmd::byId($idTemperature)->getId() . '#');
+        if ($thermostat['temperatureInterieure']) {
+          $thermo->setConfiguration('temperature_indoor', '#' . $thermostat['temperatureInterieure'] . '#');
+        }
+        $thermo->setConfiguration('temperature_indoor_min', 0);
+        $thermo->setConfiguration('temperature_indoor_max', 40);
+
+        $thermo->save();
+        log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
         /* */
         // Action
         if ($thermostat['commandeChauffer']) {
@@ -148,12 +155,6 @@ class ImactPlugin extends eqLogic
           ]);
         }
 
-        if ($thermostat['temperatureInterieure']) {
-          $thermo->setConfiguration('temperature_indoor', '#' . $thermostat['temperatureInterieure'] . '#');
-        }
-        $thermo->setConfiguration('temperature_indoor_min', 0);
-        $thermo->setConfiguration('temperature_indoor_max', 40);
-        $thermo->setConfiguration('temperature_outdoor', '#' . cmd::byId($idTemperature)->getId() . '#');
         if ($thermostat['commandePersonnelle']) {
           $thermo->setConfiguration('customCmd', '#' . $thermostat['commandePersonnelle'] . '#');
         }
@@ -281,7 +282,7 @@ class ImactPlugin extends eqLogic
 
 
         $statut = $thermo->getCmd('info', 'status');
-        $statut->setTemplate('dashboard','custom::Thermostat - statut');
+        $statut->setTemplate('dashboard', 'custom::Thermostat - statut');
         $statut->save();
         $thermo->setDisplay('layout::dashboard::table::cmd::' . $statut->getId() . '::line', 4);
         $thermo->setDisplay('layout::dashboard::table::cmd::' . $statut->getId() . '::column', 1);
@@ -329,9 +330,10 @@ class ImactPlugin extends eqLogic
     return $duplicateName;
   }
 
-  public static function verifyCommandeInfo($thermostat){
-    $cmd=cmd::byId($thermostat['commandePersonnelle']);
-    return($cmd->getType()!=='info')? false : true;
+  public static function verifyCommandeInfo($thermostat)
+  {
+    $cmd = cmd::byId($thermostat['commandePersonnelle']);
+    return ($cmd->getType() !== 'info') ? false : true;
   }
 
 
