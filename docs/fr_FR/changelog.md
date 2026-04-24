@@ -1,5 +1,9 @@
 # Changelog ImactPlugin
 
+# 1.3.5 | 24/04/2026
+
+- fix : Correction sur la vérification des thermostats
+
 # 1.3.4 | 20/04/2026
 
 - fix : Correction sur le visuel d'un thermostat

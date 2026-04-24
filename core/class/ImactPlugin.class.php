@@ -94,8 +94,8 @@ class ImactPlugin extends eqLogic
       $cmd->setConfiguration('virtualAction', '1');
       $cmd->setDisplay('showNameOndashboard', '0');
       $cmd->setDisplay('showNameOnmobile', '0');
-      $cmd->setTemplate('dashboard', 'custom::Lumière ON/OFF');
-      $cmd->setTemplate('mobile', 'custom::Lumière ON/OFF');
+      $cmd->setTemplate('dashboard', 'custom::Imact - Lumière On / Off');
+      $cmd->setTemplate('mobile', 'custom::Imact - Lumière On / Off');
       $cmd->save();
     }
 
@@ -106,7 +106,7 @@ class ImactPlugin extends eqLogic
     log::add('ImactPlugin', 'debug', 'createThermostat appelé !');
     try {
 
-      $idTemperature = 33430; // 104 sur la template | 33430 au bureau
+      $idTemperature = 104; // 104 sur la template | 33430 au bureau
       foreach ($thermostats as $thermostat) {
         $thermo = new thermostat();
         $thermo->setName($thermostat['nomThermostat']);
@@ -114,7 +114,7 @@ class ImactPlugin extends eqLogic
         $thermo->setIsEnable(1);
         $thermo->setIsVisible(1);
         /* Fix */
-        $thermo->setObject_id(2); // 22 sur la template
+        $thermo->setObject_id(22); // 22 sur la template
         $thermo->setConfiguration('order_min', 5);
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
@@ -281,6 +281,8 @@ class ImactPlugin extends eqLogic
 
 
         $statut = $thermo->getCmd('info', 'status');
+        $statut->setTemplate('dashboard','custom::Thermostat - statut');
+        $statut->save();
         $thermo->setDisplay('layout::dashboard::table::cmd::' . $statut->getId() . '::line', 4);
         $thermo->setDisplay('layout::dashboard::table::cmd::' . $statut->getId() . '::column', 1);
 
@@ -326,6 +328,12 @@ class ImactPlugin extends eqLogic
 
     return $duplicateName;
   }
+
+  public static function verifyCommandeInfo($thermostat){
+    $cmd=cmd::byId($thermostat['commandePersonnelle']);
+    return($cmd->getType()!=='info')? false : true;
+  }
+
 
   public static function verifyVoletPropExist()
   {

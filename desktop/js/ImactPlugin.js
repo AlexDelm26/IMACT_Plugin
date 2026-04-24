@@ -192,15 +192,15 @@ async function addThermostat() {
     });
   }
   if (thermostatsInvalides.length > 0) {
-    btn.disabled = false;
-    btn.textContent = 'Valider';
     const thermostatsInvalidesLabels = thermostatsInvalides
       .map(t => `n°${t.numeroThermostat} (${t.nomThermostat || 'nom vide'})`);
 
     jeedomUtils.showAlert({
-      message: `Noms invalides : ${thermostatsInvalidesLabels.join(', ')}`,
+      message: `Noms invalides : <br>${thermostatsInvalidesLabels.join('<br>')}`,
       level: 'danger'
     });
+    btn.disabled = false;
+    btn.textContent = 'Valider';
     return;
   }
 
@@ -216,11 +216,45 @@ async function addThermostat() {
       message: `Noms en doublon : ${thermostatsEnDoublon.join(', ')}`,
       level: 'danger'
     });
+    btn.disabled = false;
+    btn.textContent = 'Valider';
+    
     return;
   }
-
+  const erreurs = [];
+  
 
   let success = 0;
+  for (const thermostat of thermostats) {
+    const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "verifyThermostat",
+        thermostat: JSON.stringify(thermostat)
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    
+    if (data.state === "ok") {
+      continue
+    } else {
+      erreurs.push(data.result)
+    }
+  }
+  
+  if (erreurs.length > 0) {
+    jeedomUtils.showAlert({
+      message: `${erreurs.join('<br>')}`,
+      level: 'danger'
+    });
+    btn.disabled = false
+    btn.textContent = 'Valider';
+
+    return
+  }
+
   for (const thermostat of thermostats) {
     try {
       const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
@@ -233,10 +267,14 @@ async function addThermostat() {
       });
       const data = await response.json();
       if (data.state === "ok") {
+
         success++;
         jeedomUtils.showAlert({ message: `${success}/${thermostats.length} créé(s)...`, level: 'success' });
       } else {
-        jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
+        btn.disabled = false;
+  btn.textContent = 'Valider';
+
+        // jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
       }
     } catch (error) {
       jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat}`, level: 'danger' });
@@ -368,7 +406,7 @@ function addChampThermostat() {
     $(document).off('click', '.bt_selectCmdInfo').on('click', '.bt_selectCmdInfo', function () {
       var inputId = $(this).data('input');
 
-      jeedom.cmd.getSelectModal({cmd:{type:'info'}}, function (result) {
+      jeedom.cmd.getSelectModal({ cmd: { type: 'info' } }, function (result) {
         console.log('result cmd:', result);
         if (result) {
           $('#' + inputId)
@@ -655,9 +693,9 @@ document.addEventListener('change', function (e) {
   }
 });
 async function copyCommandes() {
-  
+
   let equipementSource = document.getElementById('equipementSource').getAttribute('data-eqlogic-id')
-  
+
   let equipementCible = document.getElementById('equipementCible').getAttribute('data-eqlogic-id')
   let copierAllCommandes = document.getElementById('copierAllCommandes').checked
   let commandesContenant = document.getElementById('commandesContenant').value
@@ -669,7 +707,7 @@ async function copyCommandes() {
       message: 'Veuillez sélectionner un équipement source',
       level: 'danger'
     })
-    
+
   }
 
   if (!equipementCible) {
@@ -677,7 +715,7 @@ async function copyCommandes() {
       message: 'Veuillez sélectionner un équipement cible',
       level: 'danger'
     })
-    
+
   }
 
   if (!copierAllCommandes) {
@@ -695,7 +733,7 @@ async function copyCommandes() {
     ...(!copierAllCommandes && { commandesContenant: commandesContenant, exclureCommandes1: exclureCommandes1, exclureCommandes2: exclureCommandes2, exclureCommandes3: exclureCommandes3 })
   }
   console.log(automate);
-  
+
   try {
     const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
       method: "POST",
@@ -707,9 +745,9 @@ async function copyCommandes() {
     });
     const data = await response.json();
     console.log(data);
-    
+
     if (data.state === "ok") {
-      jeedomUtils.showAlert({ message: `${data.result} commande(s) copiée(s)...`, level: 'success'  });
+      jeedomUtils.showAlert({ message: `${data.result} commande(s) copiée(s)...`, level: 'success' });
     }
   } catch (error) {
     jeedomUtils.showAlert({ message: error, level: 'danger' });
