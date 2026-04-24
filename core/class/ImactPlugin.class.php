@@ -119,8 +119,8 @@ class ImactPlugin extends eqLogic
         $thermo->setConfiguration('order_max', 28);
         $thermo->setConfiguration('engine', 'temporal');
         $thermo->setConfiguration('allow_mode', 'heat');
-        $thermo->save();
-        log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
+        // $thermo->save();
+        // log::add('ImactPlugin', 'debug', $thermostat['nomThermostat'] . ' créé');
         /* */
         // Action
         if ($thermostat['commandeChauffer']) {
