@@ -177,7 +177,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneConfort')->getId() . '#']
               ]
             ]
           ],
@@ -187,7 +187,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneAbsent')->getId() . '#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneAbsent')->getId() . '#']
               ]
             ]
           ],
@@ -197,7 +197,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneEco')->getId() . '#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneEco')->getId() . '#']
               ]
             ]
           ],
@@ -207,7 +207,7 @@ class ImactPlugin extends eqLogic
             'actions' => [
               [
                 'cmd' => '#' . $modesThermostat->getId() . '#',
-                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneHorsGel')->getId() . '#'] // à mettre dynamiquement
+                'options' => ['slider' => '#' . $commandesZone->getCmd('info', 'ConsigneHorsGel')->getId() . '#']
               ]
             ]
           ],

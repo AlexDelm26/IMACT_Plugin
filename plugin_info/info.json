@@ -3,40 +3,6 @@
   "name": "Imact Plugin",
   "pluginVersion": "0.1",
   "version":"1.4.0",
-  "specialAttributes": {
-    "object": {
-      "toto": {
-        "name": {
-          "fr_FR": "Plop je suis un attribut sp\u00e9cial"
-        },
-        "type": "input"
-      },
-      "toto2": {
-        "name": {
-          "fr_FR": "Plop je suis un attribut sp\u00e9cial number"
-        },
-        "type": "number"
-      }
-    },
-    "user": {
-      "toto": {
-        "name": {
-          "fr_FR": "Plop je suis un attribut sp\u00e9cial"
-        },
-        "type": "select",
-        "values": [
-          {
-            "value": "1",
-            "name": "valeur 1"
-          },
-          {
-            "value": "plop",
-            "name": "valeur plop"
-          }
-        ]
-      }
-    }
-  },
   "description": {
     "fr_FR": "Automatisation des taches"
   },
