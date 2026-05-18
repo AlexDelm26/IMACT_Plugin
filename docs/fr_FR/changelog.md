@@ -1,5 +1,9 @@
 # Changelog ImactPlugin
 
+# 1.3.6 | 18/05/2026
+
+- fix : Correction sur la copie des commandes -> remplacement de la fonction clone par la création d'une commande
+
 # 1.3.5 | 24/04/2026
 
 - fix : Correction sur la vérification des thermostats

@@ -543,8 +543,28 @@ class ImactPlugin extends eqLogic
             (empty($exclureCommandes3) || strpos($cmd->getName(), $exclureCommandes3) === false)
           ) {
 
-            $newCommande = clone cmd::byId($cmd->getId());
-            $newCommande->setId('');
+            // $newCommande = clone cmd::byId($cmd->getId());
+            // $newCommande->setId('');
+            // if ($commandeType == 'calcul') {
+            //   $newCommande->setConfiguration('calcul', '#' . $cmd->getId() . '#');
+            // } else {
+            //   $newCommande->setConfiguration('infoName', '#' . $cmd->getId() . '#');
+            //   if (!empty($oldCmdAction)) {
+            //     $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
+            //   }
+
+            // }
+            // $newCommande->setEqLogic_id($equipementCible);
+            // $newCommande->save();
+            // $newCommande->event($cmd->getCache('value'));
+            // $newCommande->save();
+            $newCommande = new virtualCmd();
+            $newCommande->setName($cmd->getName());
+            $newCommande->setType($cmd->getType());
+            $newCommande->setSubType($cmd->getSubType());
+            $newCommande->setUnite($cmd->getUnite());
+            $newCommande->setIsVisible($cmd->getIsVisible());
+            $newCommande->setIsHistorized($cmd->getIsHistorized());
             if ($commandeType == 'calcul') {
               $newCommande->setConfiguration('calcul', '#' . $cmd->getId() . '#');
             } else {
@@ -552,7 +572,6 @@ class ImactPlugin extends eqLogic
               if (!empty($oldCmdAction)) {
                 $newCommande->setValue((cmd::byEqLogicIdCmdName($equipementCible, $oldCmdAction->getName()))->getId());
               }
-
             }
             $newCommande->setEqLogic_id($equipementCible);
             $newCommande->save();
