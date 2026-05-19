@@ -20,7 +20,7 @@ require_once __DIR__ . '/../../../../core/php/core.inc.php';
 
 class ImactPlugin extends eqLogic
 {
-  public static function createVirtualLEDs($leds)
+  public static function createVirtualLEDs(array $leds)
   {
     log::add('ImactPlugin', 'debug', '=== Début createVirtualLEDs ===');
 
@@ -345,7 +345,7 @@ class ImactPlugin extends eqLogic
     $plugin = plugin::byId('voletProp');
     return $plugin->isActive();
   }
-  public static function createVolet($volets)
+  public static function createVolet(array $volets)
   {
     log::add('ImactPlugin', 'debug', var_export($volets, true));
     $logicalIdPerPlugin = [

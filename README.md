@@ -1,6 +1,6 @@
 # ImactPlugin — Plugin Jeedom
 
-Plugin Jeedom de gestion automatique des thermostats, développé dans le cadre d'un projet IMACT.
+Plugin Jeedom de création d'éclairages, thermostats, volets et automates, développé dans le cadre d'un projet IMACT.
 
 ---
 
@@ -17,19 +17,20 @@ Plugin Jeedom de gestion automatique des thermostats, développé dans le cadre 
 ```
 ImactPlugin/
 ├── core/
-    ├── ajax/
-    │    └──ImactPlugin.ajax.php    # Pont Back-Front
-│   ├── class/
-│   │   └── ImactPlugin.class.php   # Classe principale, logique métier
-│   └── php/
-│       └── ...                     # Fonctions utilitaires
+│   ├── ajax/
+│   │    └──ImactPlugin.ajax.php    # Pont Back-Front
+│   └── class/
+│        └── ImactPlugin.class.php   # Classe principale, logique métier
+│   
 ├── desktop/
 │   ├── js/
 │   │   └── ImactPlugin.js          # Interface frontend
-│   └── php/
-│       └── ImactPlugin.php         # Vue principale
+│   ├── php/
+│   │   └── ImactPlugin.php         # Vue principale
+│   └── modal/
+│   │   └── addLED.php              # Vue des fonctions
 ├── plugin_info/
-│   └── info.json                   # Métadonnées du plugin
+│       └── info.json                   # Métadonnées du plugin
 └── README.md
 ```
 
@@ -37,38 +38,17 @@ ImactPlugin/
 
 ## Fonctions principales
 
+### `createVirtualLEDs(array $leds)`
+Crée et configure un ou plusieurs virtuels Jeedom pour piloter l'éclairage à partir d'un tableau de paramètres.
+
 ### `createThermostat(array $thermostats)`
 Crée et configure un ou plusieurs thermostats Jeedom à partir d'un tableau de paramètres.
 
 **Modes créés automatiquement :** Boost, Confort, Absent, Eco, Hors-Gel
 
----
 
-### `configureDisplayThermostat(int $id, mixed $commandePersonnelle)`
-Configure l'affichage du thermostat après sa création.
+### `createVolet(array $volets)`
+Crée et configure un ou plusieurs volets Jeedom à partir d'un tableau de paramètres.
 
----
-
-## Logs
-
-Les logs sont accessibles depuis **Analyse → Logs → ImactPlugin**.
-
-Niveaux utilisés :
-- `debug` : étapes de création
-- `error` : erreurs avec message, ligne et fichier
-
----
-
-## Limitations connues
-
-- Les modes de consigne (Boost, Confort, etc.) sont fixes et définis à la création
-- Le plugin ne gère pas la suppression ou la mise à jour d'un thermostat existant
-
----
-
-## Développement futur
-
-Pistes d'amélioration identifiées en fin de projet :
-- Rendre les modes configurables depuis l'interface
-- Ajouter une validation des paramètres en entrée de `createThermostat()`
-- Factoriser la construction des modes (actuellement répétitive)
+### `convertAutomate(array $automates)`
+Copie des commandes dans un virtuel avec ou sans filtre
