@@ -2,8 +2,8 @@
   "pre-install": {},
   "apt": {},
   "pip3": {
-    "pyserial": { "reinstall": true },
-    "requests": { "reinstall": true }
+    "pyserial": { "reinstall": false },
+    "requests": { "reinstall": false }
   },
   "npm": {
     "plugins/ImactPlugin/ressources/demond": {}
