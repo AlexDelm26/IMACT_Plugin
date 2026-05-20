@@ -144,6 +144,10 @@ try {
     $automate = json_decode(init('automate'), true);
     ajax::success(ImactPlugin::convertAutomate($automate));
   }
+  if (init('action') == 'exportJson') {
+    $automate = json_decode(init('automate'), true);
+    ajax::success(ImactPlugin::convertAutomate($automate));
+  }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));
   /*     * *********Catch exeption*************** */
