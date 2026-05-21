@@ -611,5 +611,26 @@ class ImactPlugin extends eqLogic
     return $commandesCrees;
   }
 
+  public static function exportJson($idEqLogic)
+  {
+    $eqLogic = eqLogic::byId($idEqLogic);
+
+    if (!is_object($eqLogic)) {
+      throw new Exception("Équipement introuvable : " . $idEqLogic);
+    }
+
+    $data = utils::o2a($eqLogic);
+    $data['cmds'] = [];
+
+    foreach ($eqLogic->getCmd() as $cmd) {
+      $cmdData = utils::o2a($cmd);
+      $cmdData['value'] = $cmd->execCmd();
+      $data['cmds'][] = $cmdData;
+    }
+
+    // ✅ Retourne le tableau brut, ajax::success() s'occupe du json_encode
+    return $data;
+  }
+
 }
 

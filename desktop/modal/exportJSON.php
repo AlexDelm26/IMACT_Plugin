@@ -11,12 +11,9 @@ if (!isConnect('admin')) {
                 <tr>
                     <td>{{Equipement Source}}</td>
                     <td>
-
                         <div class='input-group'>
-
                             <input type='text' class='form-control eqLogicAttr' data-l1key='equipementSource'
                                 id='equipementSource' placeholder='Sélectionner équipement' readonly>
-
                             <span class='input-group-btn'>
                                 <a class='btn btn-default btn-sm bt_selectEqLogic' data-input="equipementSource">
                                     <i class='fas fa-list-alt'></i>
@@ -29,25 +26,18 @@ if (!isConnect('admin')) {
         </table>
     </div>
 
-
-
     <div style="text-align: center; margin-top: 20px;" id="btn_valider">
-        <button class="btn btn-success" onclick="copyCommandes()">{{Valider}}</button>
+        <button class="btn btn-success" onclick="exportJson()">{{Valider}}</button>
+    </div>
+
+    <div id="json_result_zone" style="display:none; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong>{{Résultat JSON}}</strong>
+            <button class="btn btn-default btn-sm" onclick="copyJson()">
+                <i class="fas fa-copy"></i> {{Copier}}
+            </button>
+        </div>
+        <textarea id="json_result" class="form-control" rows="15" readonly
+            style="font-family: monospace; font-size: 12px;"></textarea>
     </div>
 </div>
-<script>
-    $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
-        var inputId = $(this).data('input');
-        var index = $(this).data('index');
-
-        jeedom.eqLogic.getSelectModal({}, function (result) {
-            if (!result) return;
-
-            $('#' + inputId)
-                .val(result.human)
-                .attr('data-eqlogic-id', result.id);
-
-            const extraTbody = document.querySelector('#extra_volet_' + index);
-        });
-    });
-</script>

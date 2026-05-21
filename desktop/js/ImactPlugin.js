@@ -761,24 +761,46 @@ async function copyCommandes() {
 
 }
 async function exportJson() {
-  const equipementSource = document.getElementById('equipementSource').getAttribute('data-eqlogic-id')
+  const equipementSource = document.getElementById('equipementSource').getAttribute('data-eqlogic-id');
+
+  if (!equipementSource) {
+    jeedomUtils.showAlert({ message: "Veuillez sélectionner un équipement.", level: 'warning' });
+    return;
+  }
+
   try {
     const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         action: "exportJson",
-        equipementSource: JSON.stringify(equipementSource)
+        equipementSource: equipementSource  // ✅ Plus de JSON.stringify
       }),
     });
+
     const data = await response.json();
-    console.log(data);
 
     if (data.state === "ok") {
-      jeedomUtils.showAlert({ message: `${data.result} commande(s) copiée(s)...`, level: 'success' });
+      const json = JSON.stringify(data.result, null, 2);
+      document.getElementById('json_result').value = json;
+      document.getElementById('json_result_zone').style.display = 'block';
+    } else {
+      jeedomUtils.showAlert({ message: data.result, level: 'danger' });
     }
   } catch (error) {
-    jeedomUtils.showAlert({ message: error, level: 'danger' });
+    jeedomUtils.showAlert({ message: error.message, level: 'danger' });
+  }
+}
+
+async function copyJson() {
+  const textarea = document.getElementById('json_result');
+  try {
+    await navigator.clipboard.writeText(textarea.value);
+    jeedomUtils.showAlert({ message: "JSON copié !", level: 'success' });
+  } catch {
+    textarea.select();
+    document.execCommand('copy');
+    jeedomUtils.showAlert({ message: "JSON copié !", level: 'success' });
   }
 }
 
