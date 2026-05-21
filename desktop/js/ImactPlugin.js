@@ -37,6 +37,12 @@ $("#btn_add_AUTOMATE").on("click", function () {
     .load("index.php?v=d&plugin=ImactPlugin&modal=addAutomate")
     .dialog("open");
 });
+$("#btn_export").on("click", function () {
+  $("#md_modal").dialog({ title: "{{Exporter un équipement}}" });
+  $("#md_modal")
+    .load("index.php?v=d&plugin=ImactPlugin&modal=exportJSON")
+    .dialog("open");
+});
 
 
 $(document).on('click', '.bt_selectEqLogic', function () {
@@ -218,11 +224,11 @@ async function addThermostat() {
     });
     btn.disabled = false;
     btn.textContent = 'Valider';
-    
+
     return;
   }
   const erreurs = [];
-  
+
 
   let success = 0;
   for (const thermostat of thermostats) {
@@ -236,14 +242,14 @@ async function addThermostat() {
     });
     const data = await response.json();
     console.log(data);
-    
+
     if (data.state === "ok") {
       continue
     } else {
       erreurs.push(data.result)
     }
   }
-  
+
   if (erreurs.length > 0) {
     jeedomUtils.showAlert({
       message: `${erreurs.join('<br>')}`,
@@ -272,7 +278,7 @@ async function addThermostat() {
         jeedomUtils.showAlert({ message: `${success}/${thermostats.length} créé(s)...`, level: 'success' });
       } else {
         btn.disabled = false;
-  btn.textContent = 'Valider';
+        btn.textContent = 'Valider';
 
         // jeedomUtils.showAlert({ message: `Erreur thermostat n°${thermostat.numeroThermostat} : ${data.result}`, level: 'danger' }); // catch l'erreur si doublon dans la DB
       }
@@ -753,6 +759,49 @@ async function copyCommandes() {
     jeedomUtils.showAlert({ message: error, level: 'danger' });
   }
 
+}
+async function exportJson() {
+  const equipementSource = document.getElementById('equipementSource').getAttribute('data-eqlogic-id');
+
+  if (!equipementSource) {
+    jeedomUtils.showAlert({ message: "Veuillez sélectionner un équipement.", level: 'warning' });
+    return;
+  }
+
+  try {
+    const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "exportJson",
+        equipementSource: equipementSource  // ✅ Plus de JSON.stringify
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.state === "ok") {
+      const json = JSON.stringify(data.result, null, 2);
+      document.getElementById('json_result').value = json;
+      document.getElementById('json_result_zone').style.display = 'block';
+    } else {
+      jeedomUtils.showAlert({ message: data.result, level: 'danger' });
+    }
+  } catch (error) {
+    jeedomUtils.showAlert({ message: error.message, level: 'danger' });
+  }
+}
+
+async function copyJson() {
+  const textarea = document.getElementById('json_result');
+  try {
+    await navigator.clipboard.writeText(textarea.value);
+    jeedomUtils.showAlert({ message: "JSON copié !", level: 'success' });
+  } catch {
+    textarea.select();
+    document.execCommand('copy');
+    jeedomUtils.showAlert({ message: "JSON copié !", level: 'success' });
+  }
 }
 
 
