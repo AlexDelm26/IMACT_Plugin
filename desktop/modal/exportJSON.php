@@ -41,3 +41,17 @@ if (!isConnect('admin')) {
             style="font-family: monospace; font-size: 12px;"></textarea>
     </div>
 </div>
+<script>
+    $(document).off('click', '.bt_selectEqLogic').on('click', '.bt_selectEqLogic', function () {
+        var inputId = $(this).data('input');
+        var index = $(this).data('index');
+
+        jeedom.eqLogic.getSelectModal({}, function (result) {
+            if (!result) return;
+
+            $('#' + inputId)
+                .val(result.human)
+                .attr('data-eqlogic-id', result.id);
+        });
+    });
+</script>
