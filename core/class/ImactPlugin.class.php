@@ -627,9 +627,117 @@ class ImactPlugin extends eqLogic
       $cmdData['value'] = $cmd->execCmd();
       $data['cmds'][] = $cmdData;
     }
-
-    // ✅ Retourne le tableau brut, ajax::success() s'occupe du json_encode
     return $data;
+  }
+  public static function importJson($data)
+  {
+    log::add('ImactPlugin', 'debug', 'Début importJson');
+
+    // Gestion du nom
+    $name = $data['name'];
+    $existingNames = array_map(function ($eq) {
+      return $eq->getName();
+    }, eqLogic::byType($data['eqType_name']));
+
+    if (in_array($name, $existingNames)) {
+      $i = 2;
+      while (in_array($name . ' (' . $i . ')', $existingNames)) {
+        $i++;
+      }
+      $name = $name . ' (' . $i . ')';
+    }
+
+    log::add('ImactPlugin', 'debug', 'Nom final : ' . $name);
+
+    $eqLogic = new eqLogic();
+    $eqLogic->setName($name);
+    $eqLogic->setEqType_name($data['eqType_name']);
+    $eqLogic->setIsEnable($data['isEnable']);
+    $eqLogic->setIsVisible($data['isVisible']);
+    $eqLogic->setObject_id($data['object_id']);
+    $eqLogic->save();
+
+    log::add('ImactPlugin', 'debug', 'eqLogic sauvegardé, id : ' . $eqLogic->getId());
+
+    $newEqLogicId = $eqLogic->getId();
+    $cmdIdMap = [];
+
+    $cmds = $data['cmds'];
+    usort($cmds, function ($a, $b) {
+      if ($a['type'] === $b['type'])
+        return 0;
+      return $a['type'] === 'info' ? -1 : 1;
+    });
+
+    foreach ($cmds as $cmdData) {
+      $cmd = new cmd();
+      $cmd->setEqLogic_id($newEqLogicId);
+      $cmd->setName($cmdData['name']);
+      $cmd->setEqType($cmdData['eqType']);
+      $cmd->setLogicalId($cmdData['logicalId']);
+      $cmd->setGeneric_type($cmdData['generic_type']);
+      $cmd->setType($cmdData['type']);
+      $cmd->setSubType($cmdData['subType']);
+      $cmd->setUnite($cmdData['unite']);
+      $cmd->setIsHistorized($cmdData['isHistorized']);
+      $cmd->setIsVisible($cmdData['isVisible']);
+      $cmd->setOrder($cmdData['order']);
+
+      if (is_array($cmdData['template'])) {
+        foreach ($cmdData['template'] as $key => $value) {
+          $cmd->setTemplate($key, $value);
+        }
+      }
+
+      if (is_array($cmdData['display'])) {
+        foreach ($cmdData['display'] as $key => $value) {
+          if (!is_array($value)) {
+            $cmd->setDisplay($key, $value);
+          }
+        }
+      }
+
+      $configuration = is_array($cmdData['configuration']) ? $cmdData['configuration'] : [];
+      if (!empty($configuration['infoId'])) {
+        $configuration['infoId'] = $cmdIdMap[(string) $configuration['infoId']] ?? null;
+      }
+      foreach ($configuration as $key => $value) {
+        $cmd->setConfiguration($key, $value);
+      }
+
+      $cmd->save();
+      $cmdIdMap[(string) $cmdData['id']] = $cmd->getId();
+    }
+
+    $display = $data['display'];
+    $newDisplay = [];
+    foreach ($display as $key => $value) {
+      $newKey = preg_replace_callback('/cmd::(\d+)::/', function ($matches) use ($cmdIdMap) {
+        $oldId = (string) $matches[1];
+        $newId = isset($cmdIdMap[$oldId]) ? $cmdIdMap[$oldId] : $oldId;
+        return 'cmd::' . $newId . '::';
+      }, $key);
+      $newDisplay[$newKey] = $value;
+    }
+
+    foreach ($newDisplay as $key => $value) {
+      if (!is_array($value)) {
+        $eqLogic->setDisplay($key, $value);
+      }
+    }
+
+    if (isset($newDisplay['layout::dashboard::table::parameters'])) {
+      $eqLogic->setDisplay('layout::dashboard::table::parameters', $newDisplay['layout::dashboard::table::parameters']);
+    }
+
+    $eqLogic->save();
+
+    log::add('ImactPlugin', 'debug', 'importJson terminé, newEqLogicId : ' . $newEqLogicId);
+
+    return [
+      'id' => $newEqLogicId,
+      'name' => $name
+    ];
   }
 
 }
