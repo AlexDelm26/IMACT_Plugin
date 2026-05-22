@@ -43,6 +43,12 @@ $("#btn_export").on("click", function () {
     .load("index.php?v=d&plugin=ImactPlugin&modal=exportJSON")
     .dialog("open");
 });
+$("#btn_import").on("click", function () {
+  $("#md_modal").dialog({ title: "{{Importer un équipement}}" });
+  $("#md_modal")
+    .load("index.php?v=d&plugin=ImactPlugin&modal=importJSON")
+    .dialog("open");
+});
 
 
 $(document).on('click', '.bt_selectEqLogic', function () {
@@ -801,6 +807,40 @@ async function copyJson() {
     textarea.select();
     document.execCommand('copy');
     jeedomUtils.showAlert({ message: "JSON copié !", level: 'success' });
+  }
+}
+
+async function importJson() {
+  const json = document.getElementById('json_form').value;
+
+  if (!json) {
+    jeedomUtils.showAlert({ message: "Veuillez sélectionner un équipement.", level: 'warning' });
+    return;
+  }
+
+
+  try {
+    const response = await fetch("plugins/ImactPlugin/core/ajax/ImactPlugin.ajax.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "importJson",
+        json: json
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.state === "ok") {
+      jeedomUtils.showAlert({
+        message: `Équipement "${data.result.name}" créé avec succès (id: ${data.result.id}).`,
+        level: 'success'
+      });
+    } else {
+      jeedomUtils.showAlert({ message: data.result, level: 'danger' });
+    }
+  } catch (error) {
+    jeedomUtils.showAlert({ message: error.message, level: 'danger' });
   }
 }
 

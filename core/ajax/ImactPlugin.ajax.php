@@ -146,8 +146,15 @@ try {
   }
   if (init('action') == 'exportJson') {
     $equipementSource = init('equipementSource');
-    
+
     ajax::success(ImactPlugin::exportJson($equipementSource));
+  }
+  if (init('action') == 'importJson') {
+
+    $json = json_decode(init('json'), true);
+    log::add('ImactPlugin', 'debug', 'data Décodé reçu : ' . print_r($json,true));
+
+    ajax::success(ImactPlugin::importJson($json));
   }
 
   throw new Exception(__('Aucune méthode correspondante à', __FILE__) . ' : ' . init('action'));

@@ -53,6 +53,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 				<span>{{Exporter un équipement}}</span>
 			</div>
+			<div class="cursor logoPrimary" id="btn_import" data-action="add">
+				<i class="fas fa-plus-circle"></i>
+				<br>
+
+				<span>{{Importer un équipement}}</span>
+			</div>
 
 		</div>
 		<legend> {{Version 1.3.6 | 18/05/2026}}</legend>
